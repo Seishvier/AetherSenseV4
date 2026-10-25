@@ -1,318 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AetherSense — Real-Time Weather & Air Quality</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101927">
+  <meta name="description" content="AetherSense — pemantauan cuaca, kualitas udara, dan wawasan pertanian berbasis data Open-Meteo.">
+  <title>AetherSense — Environmental Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
 </head>
-<body>
-  <div class="app-container">
-    <!-- Sidebar -->
+<body data-weather="clear">
+  <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <i class="fa-solid fa-cloud-sun"></i>
-          <span>AetherSense</span>
-        </div>
-        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
+      <a class="brand" href="#overview" aria-label="AetherSense beranda">
+        <span class="brand-mark"><i class="fa-solid fa-wind"></i></span>
+        <span><strong>AetherSense</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span>
+      </a>
 
-      <nav class="sidebar-nav">
-        <button class="nav-item active" data-section="dashboard">
-          <i class="fa-solid fa-gauge-high"></i>
-          <span>Dasbor</span>
-        </button>
-        <button class="nav-item" data-section="airquality">
-          <i class="fa-solid fa-wind"></i>
-          <span>Kualitas Udara</span>
-        </button>
-        <button class="nav-item" data-section="recommendations">
-          <i class="fa-solid fa-lightbulb"></i>
-          <span>Rekomendasi</span>
-        </button>
-        <button class="nav-item" data-section="about">
-          <i class="fa-solid fa-circle-info"></i>
-          <span>Tentang</span>
-        </button>
-        <button class="nav-item" data-section="team">
-          <i class="fa-solid fa-users"></i>
-          <span>Tim</span>
-        </button>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="main-nav" aria-label="Navigasi utama">
+        <button class="nav-link active" data-view="overview"><i class="fa-solid fa-house"></i><span>Overview</span></button>
+        <button class="nav-link" data-view="health"><i class="fa-solid fa-heart-pulse"></i><span>Health & Air</span></button>
+        <button class="nav-link" data-view="agriculture"><i class="fa-solid fa-seedling"></i><span>Agricultural Insights</span></button>
+        <button class="nav-link" data-view="forecast"><i class="fa-regular fa-calendar"></i><span>Forecast</span></button>
       </nav>
 
-      <div class="sidebar-footer">
-        <p>Open-Meteo API</p>
-        <p class="version">v1.0 · PKWU Project</p>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note">
+          <span class="note-icon"><i class="fa-solid fa-leaf"></i></span>
+          <div><strong>Small signals, better decisions.</strong><p>Memahami lingkungan, satu data pada satu waktu.</p></div>
+        </div>
+        <button class="nav-link" data-view="about"><i class="fa-regular fa-circle-info"></i><span>About the project</span></button>
+        <div class="sidebar-footer"><span class="status-dot"></span> Open-Meteo data <span class="footer-separator">·</span> v1.0</div>
       </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Search Bar -->
-      <header class="top-bar">
-        <div class="search-wrapper">
-          <i class="fa-solid fa-location-dot"></i>
-          <input type="text" id="cityInput" placeholder="Cari kota di seluruh dunia..." autocomplete="off" />
-          <button id="searchBtn" aria-label="Cari">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-        </div>
-        <div class="current-location" id="currentLocation">
-          <i class="fa-solid fa-map-marker-alt"></i>
-          <span>Malang, Indonesia</span>
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Buka navigasi"><i class="fa-solid fa-bars"></i></button>
+        <div class="breadcrumb"><span>Workspace</span><i class="fa-solid fa-chevron-right"></i><strong id="breadcrumbCurrent">Overview</strong></div>
+        <div class="topbar-actions">
+          <div class="live-status"><span class="status-dot"></span><span>Live data</span></div>
+          <button class="icon-button" id="refreshButton" aria-label="Muat ulang data" title="Muat ulang data"><i class="fa-solid fa-rotate"></i></button>
+          <div class="avatar" aria-label="AetherSense project">AS</div>
         </div>
       </header>
 
-      <!-- Loading Overlay -->
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>Mengambil data atmosfer...</p>
+      <section class="search-row" aria-label="Pencarian lokasi">
+        <div class="search-intro"><span class="eyebrow">YOUR ENVIRONMENT, IN CONTEXT</span><p>Pahami kondisi di sekitarmu.</p></div>
+        <form class="search-form" id="searchForm" autocomplete="off">
+          <i class="fa-solid fa-location-dot"></i>
+          <label class="sr-only" for="citySearch">Cari kota</label>
+          <input id="citySearch" name="city" placeholder="Cari kota, misalnya Malang..." aria-label="Cari kota" required>
+          <button type="submit" id="searchButton"><span>Cari lokasi</span><i class="fa-solid fa-arrow-right"></i></button>
+          <div class="search-results" id="searchResults" role="listbox" aria-label="Hasil pencarian lokasi" hidden></div>
+        </form>
+      </section>
+
+      <div class="page-content">
+        <div class="notice" id="appNotice" role="status" hidden></div>
+        <div class="loading-panel" id="loadingPanel"><span class="loader"></span><div><strong>Mengumpulkan sinyal atmosfer...</strong><p>Memuat cuaca dan kualitas udara untuk lokasi pilihan.</p></div></div>
+
+        <section class="view active" id="view-overview" data-view-panel="overview">
+          <div class="page-heading">
+            <div><span class="eyebrow">ENVIRONMENTAL OVERVIEW</span><h1>Cuaca dalam <em>perspektif.</em></h1><p class="subheading">Ringkasan kondisi atmosfer dan sinyal lingkungan untuk membantu keputusan harian.</p></div>
+            <div class="location-pill"><i class="fa-solid fa-location-crosshairs"></i><span id="locationLabel">Malang, Jawa Timur</span><span class="pill-divider"></span><span id="localTime">--:--</span></div>
+          </div>
+
+          <article class="weather-hero glass-panel">
+            <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
+            <div class="hero-content">
+              <div class="hero-topline"><span class="hero-kicker"><span class="status-dot"></span> CURRENT CONDITIONS</span><span class="updated-label" id="updatedLabel">Memperbarui data...</span></div>
+              <div class="hero-main">
+                <div class="hero-temp-block"><div class="hero-location" id="heroLocation">Malang, Indonesia</div><div class="hero-temp"><span id="currentTemp">--</span><sup>°C</sup></div><div class="hero-condition" id="currentCondition">Menunggu data cuaca</div><p class="feels-like">Terasa seperti <strong id="feelsLike">--°C</strong></p></div>
+                <div class="hero-weather-icon" id="heroWeatherIcon"><i class="fa-solid fa-sun"></i><span class="icon-glow"></span></div>
+              </div>
+              <div class="hero-bottom"><div><i class="fa-solid fa-sun"></i><span>Terbit <strong id="sunrise">--:--</strong></span></div><div><i class="fa-regular fa-moon"></i><span>Terbenam <strong id="sunset">--:--</strong></span></div><div><i class="fa-solid fa-cloud-rain"></i><span>Peluang hujan <strong id="rainChance">--%</strong></span></div></div>
+            </div>
+          </article>
+
+          <div class="section-title-row"><div><span class="eyebrow">AT A GLANCE</span><h2>Sinyal cuaca</h2></div><span class="section-caption">Kondisi terkini · lokasi terpilih</span></div>
+          <div class="metrics-grid">
+            <article class="metric-card glass-panel"><div class="metric-top"><span class="metric-icon icon-blue"><i class="fa-solid fa-droplet"></i></span><span class="metric-trend">ATMOSFER</span></div><p>Kelembapan</p><div class="metric-value"><span id="humidityValue">--</span><small>%</small></div><div class="metric-track"><span id="humidityBar" style="width:0%"></span></div><div class="metric-foot" id="humidityNote">Kadar uap air di udara</div></article>
+            <article class="metric-card glass-panel"><div class="metric-top"><span class="metric-icon icon-cyan"><i class="fa-solid fa-wind"></i></span><span class="metric-trend">ANGIN</span></div><p>Kecepatan angin</p><div class="metric-value"><span id="windValue">--</span><small>km/j</small></div><div class="metric-foot" id="windNote">Pada ketinggian 10 meter</div><div class="wind-direction"><i class="fa-solid fa-location-arrow" id="windArrow"></i><span id="windDirection">Arah --</span></div></article>
+            <article class="metric-card glass-panel"><div class="metric-top"><span class="metric-icon icon-violet"><i class="fa-solid fa-gauge-high"></i></span><span class="metric-trend">TEKANAN</span></div><p>Tekanan permukaan laut</p><div class="metric-value"><span id="pressureValue">--</span><small>hPa</small></div><div class="metric-foot">Nilai model atmosfer</div><div class="metric-mini-label"><i class="fa-solid fa-circle-info"></i> Bukan indikator tunggal perubahan cuaca</div></article>
+            <article class="metric-card metric-aqi glass-panel"><div class="metric-top"><span class="metric-icon icon-green"><i class="fa-solid fa-lungs"></i></span><span class="metric-trend">KUALITAS UDARA</span></div><p>European Air Quality Index</p><div class="metric-value"><span id="aqiValue">--</span><small id="aqiUnit">eAQI</small></div><div class="aqi-status" id="aqiStatus"><span class="aqi-dot"></span><span>Memuat data udara</span></div><div class="metric-foot">Indeks model, bukan sensor lokal</div></article>
+          </div>
+
+          <div class="overview-lower-grid">
+            <article class="content-card glass-panel hourly-card"><div class="card-heading"><div><span class="eyebrow">NEXT HOURS</span><h2>Perjalanan suhu</h2></div><span class="mini-chip"><i class="fa-regular fa-clock"></i> 12 jam</span></div><div class="hourly-chart" id="hourlyChart"><div class="chart-empty">Grafik akan muncul setelah data dimuat.</div></div><div class="chart-legend"><span><i></i> Suhu udara</span><span class="chart-footnote">Prakiraan per jam</span></div></article>
+            <article class="content-card glass-panel air-card"><div class="card-heading"><div><span class="eyebrow">PARTICULATE MATTER</span><h2>Udara yang kita hirup</h2></div><span class="air-symbol"><i class="fa-solid fa-wind"></i></span></div><p class="card-description">Partikel halus dapat memengaruhi kenyamanan dan risiko paparan, terutama bagi kelompok sensitif.</p><div class="pollutant-row"><div><span class="pollutant-symbol">PM<sub>2.5</sub></span><small>Partikel halus</small></div><div class="pollutant-value"><strong id="pm25Value">--</strong><small>µg/m³</small></div></div><div class="pollutant-row"><div><span class="pollutant-symbol">PM<sub>10</sub></span><small>Partikel inhalabel</small></div><div class="pollutant-value"><strong id="pm10Value">--</strong><small>µg/m³</small></div></div><div class="card-bottom-link"><button data-view="health" class="text-button">Lihat insight kesehatan <i class="fa-solid fa-arrow-up-right-from-square"></i></button></div></article>
+          </div>
+
+          <div class="section-title-row recommendations-heading"><div><span class="eyebrow">CONTEXTUAL INSIGHTS</span><h2>Rekomendasi untuk sekarang</h2></div><button data-view="agriculture" class="text-button">Semua insight <i class="fa-solid fa-arrow-right"></i></button></div>
+          <div class="recommendation-grid" id="overviewRecommendations"><div class="empty-state">Rekomendasi akan muncul setelah data cuaca dimuat.</div></div>
+          <p class="data-attribution">Data cuaca: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Data kualitas udara: CAMS melalui Open-Meteo. Nilai merupakan keluaran model dan dapat berbeda dari kondisi tepat di lokasi.</p>
+        </section>
+
+        <section class="view" id="view-health" data-view-panel="health">
+          <div class="page-heading"><div><span class="eyebrow">HEALTH & AIR QUALITY</span><h1>Bernapas dengan <em>kesadaran.</em></h1><p class="subheading">Pahami kualitas udara, partikel, dan kondisi cuaca yang memengaruhi aktivitas luar ruang.</p></div><div class="location-pill"><i class="fa-solid fa-location-dot"></i><span class="location-inline">Malang, Jawa Timur</span></div></div>
+          <div class="health-summary-grid"><article class="content-card glass-panel health-aqi-card"><span class="eyebrow">EUROPEAN AQI</span><div class="health-aqi-main"><div class="health-aqi-number" id="healthAqiValue">--</div><div><h2 id="healthAqiLabel">Menunggu data</h2><p id="healthAqiDesc">Kualitas udara untuk lokasi pilihan.</p></div></div><div class="aqi-scale"><div class="scale-gradient"></div><div class="scale-labels"><span>Baik</span><span>Sedang</span><span>Buruk</span><span>Sangat buruk</span></div></div><p class="tiny-note">Skala mengikuti European AQI yang disediakan Open-Meteo. Kategori dan ambang batas berbeda dari US AQI.</p></article>
+            <article class="content-card glass-panel"><span class="eyebrow">POLLUTANT SNAPSHOT</span><h2>Konsentrasi partikel</h2><div class="pollutant-large"><div class="pollutant-large-icon">PM<sub>2.5</sub></div><div><strong id="healthPm25">-- µg/m³</strong><small>Partikel halus</small></div></div><div class="pollutant-large"><div class="pollutant-large-icon pm10">PM<sub>10</sub></div><div><strong id="healthPm10">-- µg/m³</strong><small>Partikel lebih besar yang dapat terhirup</small></div></div><p class="tiny-note">Nilai konsentrasi adalah estimasi model atmosfer, bukan hasil pengukuran alat di halaman rumah.</p></article></div>
+          <div class="section-title-row"><div><span class="eyebrow">PRACTICAL GUIDANCE</span><h2>Insight kesehatan & aktivitas</h2></div></div><div class="recommendation-grid" id="healthRecommendations"><div class="empty-state">Menunggu data cuaca dan kualitas udara.</div></div>
+          <article class="disclaimer-card"><i class="fa-solid fa-circle-info"></i><div><strong>Catatan penggunaan</strong><p>Informasi AetherSense bersifat edukatif, bukan diagnosis atau pengganti saran tenaga kesehatan. Untuk gejala, kondisi medis, atau peringatan resmi setempat, ikuti arahan tenaga kesehatan dan instansi berwenang.</p></div></article>
+        </section>
+
+        <section class="view" id="view-agriculture" data-view-panel="agriculture">
+          <div class="page-heading"><div><span class="eyebrow">AGRICULTURAL INTELLIGENCE</span><h1>Membaca cuaca, <em>merawat lahan.</em></h1><p class="subheading">Sinyal sederhana dari hujan, suhu, kelembapan, dan angin untuk membantu observasi pertanian.</p></div><div class="location-pill"><i class="fa-solid fa-location-dot"></i><span class="location-inline">Malang, Jawa Timur</span></div></div>
+          <article class="agri-intro-card glass-panel"><div class="agri-intro-icon"><i class="fa-solid fa-seedling"></i></div><div class="agri-intro-copy"><span class="eyebrow">FIELD CONTEXT</span><h2>Cuaca adalah salah satu bagian dari cerita.</h2><p>Prakiraan dapat membantu menyusun prioritas observasi, tetapi tidak menggantikan pemeriksaan tanah, tanaman, fase pertumbuhan, dan arahan penyuluh pertanian.</p></div><div class="agri-crop-select"><label for="cropSelect">Pilih komoditas</label><select id="cropSelect"><option value="vegetables">Sayuran dataran tinggi</option><option value="rice">Padi</option><option value="apple">Apel</option><option value="coffee">Kopi</option><option value="chili">Cabai</option></select></div></article>
+          <div class="agri-status-grid"><article class="content-card glass-panel"><div class="status-card-icon icon-blue"><i class="fa-solid fa-cloud-rain"></i></div><span class="eyebrow">HUJAN 24 JAM</span><div class="agri-big-value" id="rain24Value">-- <small>mm</small></div><p id="rain24Note">Akumulasi prakiraan hujan.</p></article><article class="content-card glass-panel"><div class="status-card-icon icon-cyan"><i class="fa-solid fa-droplet"></i></div><span class="eyebrow">KELEMBAPAN UDARA</span><div class="agri-big-value" id="agriHumidityValue">--<small>%</small></div><p>Gunakan sebagai sinyal untuk observasi kondisi daun dan lahan.</p></article><article class="content-card glass-panel"><div class="status-card-icon icon-violet"><i class="fa-solid fa-temperature-half"></i></div><span class="eyebrow">SUHU UDARA</span><div class="agri-big-value" id="agriTempValue">--<small>°C</small></div><p>Bandingkan dengan kebutuhan komoditas dan fase tanam.</p></article></div>
+          <div class="agri-indicator glass-panel"><div class="indicator-glyph" id="agriIndicatorGlyph"><i class="fa-solid fa-binoculars"></i></div><div class="indicator-copy"><span class="eyebrow">WEATHER-BASED INDICATOR</span><h2 id="agriIndicatorTitle">Menunggu data cuaca</h2><p id="agriIndicatorText">Indikator awal akan dibuat dari kondisi terkini dan prakiraan 24 jam.</p></div><span class="indicator-badge" id="agriIndicatorBadge">Belum tersedia</span></div>
+          <div class="section-title-row"><div><span class="eyebrow">CROP-SPECIFIC NOTES</span><h2>Hal yang perlu diperhatikan</h2></div></div><div class="recommendation-grid" id="agriRecommendations"><div class="empty-state">Menunggu data cuaca.</div></div>
+          <div class="disclaimer-card"><i class="fa-solid fa-triangle-exclamation"></i><div><strong>Bukan diagnosis agronomi</strong><p>Aturan di sini merupakan penyaring edukatif berbasis cuaca, bukan penentu waktu tanam, penyakit, atau kebutuhan irigasi secara otomatis. Periksa kondisi lahan secara langsung dan konsultasikan keputusan budidaya dengan penyuluh atau sumber pertanian setempat.</p></div></div>
+        </section>
+
+        <section class="view" id="view-forecast" data-view-panel="forecast">
+          <div class="page-heading"><div><span class="eyebrow">WEATHER OUTLOOK</span><h1>Langit beberapa hari <em>ke depan.</em></h1><p class="subheading">Prakiraan membantu merencanakan aktivitas, bukan menjamin kondisi yang akan terjadi.</p></div><div class="location-pill"><i class="fa-solid fa-location-dot"></i><span class="location-inline">Malang, Jawa Timur</span></div></div>
+          <div class="forecast-list glass-panel" id="forecastList"><div class="empty-state">Prakiraan akan muncul setelah data dimuat.</div></div>
+          <div class="section-title-row"><div><span class="eyebrow">HOURLY OUTLOOK</span><h2>Jam-jam berikutnya</h2></div></div><div class="hourly-detail-grid" id="hourlyDetailGrid"><div class="empty-state">Data per jam akan muncul setelah dimuat.</div></div>
+          <p class="data-attribution">Prakiraan disediakan oleh <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>. Perubahan kondisi lokal dapat terjadi lebih cepat daripada pembaruan model.</p>
+        </section>
+
+        <section class="view" id="view-about" data-view-panel="about">
+          <div class="page-heading"><div><span class="eyebrow">ABOUT AETHERSENSE</span><h1>Teknologi bertemu <em>kepedulian.</em></h1><p class="subheading">Proyek web edukatif untuk mengubah data lingkungan terbuka menjadi konteks yang lebih mudah dipahami.</p></div></div>
+          <article class="about-hero glass-panel"><div class="about-mark"><i class="fa-solid fa-wind"></i></div><div><span class="eyebrow">OUR PURPOSE</span><h2>Dari angka menjadi pemahaman.</h2><p>AetherSense menggabungkan cuaca, kualitas udara, dan aturan rekomendasi yang transparan. Tujuannya bukan menggantikan ahli, melainkan membantu pengguna melihat sinyal awal sebelum mengambil keputusan.</p></div></article>
+          <div class="section-title-row"><div><span class="eyebrow">PROJECT VALUE</span><h2>Di mana AetherSense dapat membantu?</h2></div></div><div class="value-grid"><article class="content-card glass-panel"><div class="value-icon"><i class="fa-solid fa-heart-pulse"></i></div><h3>Health awareness</h3><p>Membantu pengguna memahami indeks kualitas udara dan merencanakan aktivitas sesuai kondisi lingkungan.</p></article><article class="content-card glass-panel"><div class="value-icon"><i class="fa-solid fa-seedling"></i></div><h3>Pertanian kontekstual</h3><p>Menyediakan sinyal cuaca untuk mendukung observasi lahan dan percakapan dengan penyuluh.</p></article><article class="content-card glass-panel"><div class="value-icon"><i class="fa-solid fa-person-hiking"></i></div><h3>Aktivitas luar ruang</h3><p>Merangkum suhu, hujan, angin, dan UV agar perencanaan kegiatan lebih terinformasi.</p></article></div>
+          <div class="section-title-row"><div><span class="eyebrow">TECH STACK</span><h2>Teknologi yang digunakan</h2></div></div><div class="stack-grid"><div class="stack-item"><i class="fa-brands fa-html5"></i><div><strong>HTML5</strong><small>Struktur semantik</small></div></div><div class="stack-item"><i class="fa-brands fa-css3-alt"></i><div><strong>CSS3</strong><small>Glassmorphism & responsive UI</small></div></div><div class="stack-item"><i class="fa-brands fa-js"></i><div><strong>Vanilla JavaScript</strong><small>API, UI, rules engine</small></div></div><div class="stack-item"><i class="fa-solid fa-cloud-sun"></i><div><strong>Open-Meteo</strong><small>Geocoding & weather forecast</small></div></div><div class="stack-item"><i class="fa-solid fa-wind"></i><div><strong>CAMS via Open-Meteo</strong><small>Model kualitas udara</small></div></div></div>
+          <div class="section-title-row"><div><span class="eyebrow">DEVELOPMENT TEAM</span><h2>People behind the project</h2></div></div><div class="team-grid"><div class="team-card"><span>KE</span><strong>Karuniadara Ellysabeth Rabay</strong></div><div class="team-card"><span>KP</span><strong>Keyshawa Pramesthi Purbolaras</strong></div><div class="team-card"><span>KR</span><strong>Khaula Rohmania Faisal</strong></div><div class="team-card"><span>KO</span><strong>Kirani Octavia</strong></div><div class="team-card"><span>MA</span><strong>Muhammad Altavino</strong></div><div class="team-card"><span>FN</span><strong>Muhammad Fathan Nur Alauddin</strong></div></div>
+          <div class="data-attribution">Sumber data: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · Kualitas udara menggunakan data model CAMS yang disalurkan melalui Open-Meteo.</div>
+        </section>
+
+        <footer class="app-footer"><span>© 2026 AetherSense</span><span>Made for a more informed world <i class="fa-regular fa-heart"></i></span></footer>
       </div>
-
-      <!-- Error Message -->
-      <div class="error-message" id="errorMessage" hidden>
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span id="errorText">Terjadi kesalahan. Silakan coba lagi.</span>
-      </div>
-
-      <!-- Dashboard Section -->
-      <section class="section active" id="dashboard">
-        <div class="section-header">
-          <h1 class="section-title">Dasbor Cuaca</h1>
-          <p class="section-subtitle" id="lastUpdate">Memuat data...</p>
-        </div>
-
-        <div class="weather-hero glass-card">
-          <div class="weather-main">
-            <div class="temp-block">
-              <span class="temperature" id="temperature">--</span>
-              <span class="unit">°C</span>
-            </div>
-            <div class="weather-desc">
-              <i class="weather-icon" id="weatherIcon"></i>
-              <p id="weatherDescription">—</p>
-              <p class="feels-like">Terasa seperti <span id="feelsLike">--</span>°C</p>
-            </div>
-          </div>
-          <div class="weather-meta">
-            <div class="meta-item">
-              <i class="fa-solid fa-droplet"></i>
-              <span>Kelembapan</span>
-              <strong id="humidity">--%</strong>
-            </div>
-            <div class="meta-item">
-              <i class="fa-solid fa-wind"></i>
-              <span>Angin</span>
-              <strong id="windSpeed">-- km/h</strong>
-            </div>
-            <div class="meta-item">
-              <i class="fa-solid fa-gauge"></i>
-              <span>Tekanan</span>
-              <strong id="pressure">-- hPa</strong>
-            </div>
-            <div class="meta-item">
-              <i class="fa-solid fa-eye"></i>
-              <span>Jarak Pandang</span>
-              <strong id="visibility">-- km</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card glass-card">
-            <i class="fa-solid fa-temperature-half"></i>
-            <h3>Suhu Maks / Min</h3>
-            <p><span id="tempMax">--</span>° / <span id="tempMin">--</span>°</p>
-          </div>
-          <div class="stat-card glass-card">
-            <i class="fa-solid fa-cloud-rain"></i>
-            <h3>Peluang Hujan</h3>
-            <p id="precipitationProb">--%</p>
-          </div>
-          <div class="stat-card glass-card">
-            <i class="fa-solid fa-sun"></i>
-            <h3>Indeks UV</h3>
-            <p id="uvIndex">--</p>
-          </div>
-          <div class="stat-card glass-card">
-            <i class="fa-solid fa-cloud"></i>
-            <h3>Tutupan Awan</h3>
-            <p id="cloudCover">--%</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Air Quality Section -->
-      <section class="section" id="airquality">
-        <div class="section-header">
-          <h1 class="section-title">Kualitas Udara</h1>
-          <p class="section-subtitle">European Air Quality Index (EAQI)</p>
-        </div>
-
-        <div class="aqi-hero glass-card">
-          <div class="aqi-main">
-            <div class="aqi-value" id="aqiValue">--</div>
-            <div class="aqi-label" id="aqiLabel">Memuat...</div>
-            <div class="aqi-bar">
-              <div class="aqi-fill" id="aqiFill"></div>
-            </div>
-          </div>
-          <div class="pollutant-grid">
-            <div class="pollutant-item">
-              <span class="pollutant-name">PM2.5</span>
-              <strong id="pm25">--</strong>
-              <span class="unit">µg/m³</span>
-            </div>
-            <div class="pollutant-item">
-              <span class="pollutant-name">PM10</span>
-              <strong id="pm10">--</strong>
-              <span class="unit">µg/m³</span>
-            </div>
-            <div class="pollutant-item">
-              <span class="pollutant-name">Ozone (O₃)</span>
-              <strong id="ozone">--</strong>
-              <span class="unit">µg/m³</span>
-            </div>
-            <div class="pollutant-item">
-              <span class="pollutant-name">Nitrogen Dioxide</span>
-              <strong id="no2">--</strong>
-              <span class="unit">µg/m³</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="aqi-info glass-card">
-          <h3><i class="fa-solid fa-info-circle"></i> Apa arti indeks ini?</h3>
-          <ul>
-            <li><span class="badge good">1–2 Baik</span> — Udara bersih, aman untuk semua aktivitas.</li>
-            <li><span class="badge fair">3 Sedang</span> — Masih aman, tapi kelompok sensitif perlu waspada.</li>
-            <li><span class="badge moderate">4 Cukup</span> — Kurangi aktivitas outdoor yang berat.</li>
-            <li><span class="badge poor">5 Buruk</span> — Hindari olahraga outdoor, tutup jendela.</li>
-            <li><span class="badge very-poor">6 Sangat Buruk</span> — Tetap di dalam ruangan sedapat mungkin.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Recommendations Section -->
-      <section class="section" id="recommendations">
-        <div class="section-header">
-          <h1 class="section-title">Rekomendasi Cerdas</h1>
-          <p class="section-subtitle">Saran berbasis kondisi cuaca & kualitas udara saat ini</p>
-        </div>
-
-        <div class="reco-grid">
-          <div class="reco-card glass-card" id="healthReco">
-            <div class="reco-header">
-              <i class="fa-solid fa-heart-pulse"></i>
-              <h3>Kesehatan</h3>
-            </div>
-            <ul id="healthList">
-              <li>Memuat rekomendasi...</li>
-            </ul>
-          </div>
-
-          <div class="reco-card glass-card" id="agriReco">
-            <div class="reco-header">
-              <i class="fa-solid fa-seedling"></i>
-              <h3>Pertanian</h3>
-            </div>
-            <ul id="agriList">
-              <li>Memuat rekomendasi...</li>
-            </ul>
-          </div>
-
-          <div class="reco-card glass-card" id="outdoorReco">
-            <div class="reco-header">
-              <i class="fa-solid fa-person-hiking"></i>
-              <h3>Aktivitas Outdoor</h3>
-            </div>
-            <ul id="outdoorList">
-              <li>Memuat rekomendasi...</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- About Section -->
-      <section class="section" id="about">
-        <div class="section-header">
-          <h1 class="section-title">Tentang AetherSense</h1>
-          <p class="section-subtitle">Real-Time Weather & Air Quality Intelligence Platform</p>
-        </div>
-
-        <div class="about-content glass-card">
-          <p>
-            AetherSense adalah aplikasi web sepenuhnya client-side yang menyediakan data cuaca dan kualitas udara real-time
-            untuk kota manapun di dunia, dilengkapi rekomendasi cerdas untuk kesehatan, pertanian, dan aktivitas outdoor.
-          </p>
-          <p>
-            Platform ini tidak membutuhkan database, API key, maupun infrastruktur backend — ideal untuk deployment cepat
-            di GitHub Pages atau layanan static hosting lainnya.
-          </p>
-
-          <h3>USP & Market Fit</h3>
-          <ul>
-            <li><strong>Eco-tourism</strong> — Saran waktu optimal berkunjung berdasarkan kenyamanan cuaca & kualitas udara.</li>
-            <li><strong>Precision Agriculture</strong> — Rekomendasi irigasi, tanam, dan perlindungan tanaman.</li>
-            <li><strong>Public Health</strong> — Dukungan kesadaran dan pengambilan keputusan terkait paparan polusi udara.</li>
-          </ul>
-
-          <h3>Tech Stack</h3>
-          <div class="tech-tags">
-            <span>HTML5</span>
-            <span>CSS3 (Glassmorphism)</span>
-            <span>Vanilla JavaScript</span>
-            <span>Open-Meteo API</span>
-            <span>Font Awesome 6</span>
-            <span>Google Fonts</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Team Section -->
-      <section class="section" id="team">
-        <div class="section-header">
-          <h1 class="section-title">Tim Pengembang</h1>
-          <p class="section-subtitle">Mereka yang merangkai AetherSense menjadi kenyataan</p>
-        </div>
-
-        <div class="team-grid">
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Karuniadara Ellysabeth Rabay</h4>
-          </div>
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Keyshawa Pramesthi Purbolaras</h4>
-          </div>
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Khaula Rohmania Faisal</h4>
-          </div>
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Kirani Octavia</h4>
-          </div>
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Muhammad Altavino</h4>
-          </div>
-          <div class="team-card glass-card">
-            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
-            <h4>Muhammad Fathan Nur Alauddin</h4>
-          </div>
-        </div>
-      </section>
     </main>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
