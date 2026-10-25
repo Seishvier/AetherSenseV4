@@ -1,310 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AetherSense — Real-Time Weather &amp; Air Quality Intelligence</title>
-<meta name="description" content="Real-time weather, air quality and intelligent health, agricultural and outdoor-activity recommendations for any city worldwide. Fully client-side, no API keys." />
-<meta name="theme-color" content="#0d1b3d" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AetherSense — Real-Time Weather &amp; Air Quality Intelligence</title>
+  <meta name="description" content="AetherSense turns free Open-Meteo weather and air-quality data into personalised health, global agriculture and outdoor-activity guidance — fully client-side." />
+  <meta name="theme-color" content="#0a0e1a" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
+<body data-theme="default">
 
-<body data-theme="clear-night">
-
-<!-- ============ ATMOSPHERE ============ -->
-<div class="atmosphere" aria-hidden="true">
-  <span class="orb orb-a"></span>
-  <span class="orb orb-b"></span>
-  <span class="orb orb-c"></span>
-</div>
-
-<!-- ============ MOBILE NAV ============ -->
-<button id="nav-toggle" class="nav-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
-  <i class="fa-solid fa-bars"></i>
-</button>
-<div class="scrim" id="scrim" hidden></div>
-
-<!-- ============ SIDEBAR ============ -->
-<aside class="sidebar" id="sidebar">
-  <div class="brand">
-    <div class="brand-mark"><i class="fa-solid fa-wind"></i></div>
-    <div class="brand-text">
-      <h1 class="brand-name">AetherSense</h1>
-      <p class="brand-tag">Weather &amp; Air Intelligence</p>
-    </div>
+  <div class="bg-layer" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
   </div>
 
-  <nav class="nav" aria-label="Main sections">
-    <button class="nav-link is-active" data-panel="dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></button>
-    <button class="nav-link" data-panel="air"><i class="fa-solid fa-lungs"></i><span>Air Quality</span></button>
-    <button class="nav-link" data-panel="insights"><i class="fa-solid fa-seedling"></i><span>Insights</span></button>
-    <button class="nav-link" data-panel="about"><i class="fa-solid fa-circle-info"></i><span>About</span></button>
-    <button class="nav-link" data-panel="team"><i class="fa-solid fa-users"></i><span>Team</span></button>
-  </nav>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+  <div class="scrim" id="scrim" hidden></div>
 
-  <div class="sidebar-foot">
-    <div class="status" id="status-pill">
-      <span class="dot"></span><span id="status-text">Initialising…</span>
-    </div>
-    <p class="sidebar-note">Open-Meteo · no API key · no backend</p>
-  </div>
-</aside>
-
-<!-- ============ MAIN ============ -->
-<main class="main">
-
-  <header class="topbar">
-    <form class="search glass" id="search-form" role="search" autocomplete="off">
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <input id="city-input" type="text" placeholder="Search any city worldwide…" aria-label="City name" spellcheck="false" />
-      <button type="submit" class="btn-search">Search</button>
-    </form>
-
-    <div class="topbar-actions">
-      <button id="geo-btn" class="icon-btn" title="Use my location" aria-label="Use my location">
-        <i class="fa-solid fa-location-crosshairs"></i>
-      </button>
-      <button id="unit-btn" class="unit-btn" title="Toggle temperature unit" aria-label="Toggle temperature unit">
-        <span id="unit-label">°C</span>
-      </button>
-    </div>
-  </header>
-
-  <div class="quick-picks" id="quick-picks" aria-label="Quick city picks">
-    <button class="chip" data-city="Jakarta">Jakarta</button>
-    <button class="chip" data-city="Singapore">Singapore</button>
-    <button class="chip" data-city="Tokyo">Tokyo</button>
-    <button class="chip" data-city="London">London</button>
-    <button class="chip" data-city="New York">New York</button>
-    <button class="chip" data-city="Sydney">Sydney</button>
-    <button class="chip" data-city="Dubai">Dubai</button>
-    <button class="chip" data-city="Amsterdam">Amsterdam</button>
-  </div>
-
-  <!-- ================= DASHBOARD ================= -->
-  <section class="panel is-active" id="panel-dashboard">
-
-    <article class="hero glass">
-      <div class="hero-main">
-        <div class="hero-loc">
-          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-          <span id="hero-city">Locating…</span>
-          <span class="hero-time" id="hero-time"></span>
-        </div>
-
-        <div class="hero-temp">
-          <span class="hero-icon" id="hero-icon"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-          <span class="hero-value" id="hero-value">--</span>
-          <span class="unit" id="hero-unit">°C</span>
-        </div>
-
-        <p class="hero-cond" id="hero-cond">Fetching live conditions…</p>
-        <p class="hero-feels" id="hero-feels"></p>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-wind"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">AetherSense</span>
+        <span class="brand-tag">Weather &amp; Air Intelligence</span>
       </div>
+    </div>
 
-      <div class="hero-side">
-        <div class="window-card">
-          <p class="window-label"><i class="fa-solid fa-person-walking"></i> Best outdoor window</p>
-          <p class="window-range" id="window-range">—</p>
-          <div class="window-score">
-            <div class="score-bar"><span id="window-score-fill"></span></div>
-            <strong id="window-score">—</strong>
+    <div class="search">
+      <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+      <input id="searchInput" type="text" placeholder="Search a city…"
+             autocomplete="off" spellcheck="false" aria-label="Search a city" />
+      <button id="searchBtn" class="search-btn" aria-label="Search">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+      <ul class="suggestions" id="suggestions" role="listbox" hidden></ul>
+    </div>
+
+    <nav class="nav" aria-label="Sections">
+      <a class="nav-item active" href="#dashboard" data-target="dashboard">
+        <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
+      </a>
+      <a class="nav-item" href="#weather" data-target="weather">
+        <i class="fa-solid fa-cloud-sun"></i><span>Weather</span>
+      </a>
+      <a class="nav-item" href="#air" data-target="air">
+        <i class="fa-solid fa-lungs"></i><span>Air Quality</span>
+      </a>
+      <a class="nav-item" href="#recommendations" data-target="recommendations">
+        <i class="fa-solid fa-lightbulb"></i><span>Recommendations</span>
+      </a>
+      <a class="nav-item" href="#agriculture" data-target="agriculture">
+        <i class="fa-solid fa-seedling"></i><span>Agriculture</span>
+      </a>
+      <a class="nav-item" href="#about" data-target="about">
+        <i class="fa-solid fa-circle-info"></i><span>About</span>
+      </a>
+      <a class="nav-item" href="#team" data-target="team">
+        <i class="fa-solid fa-users"></i><span>Team</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <p class="foot-label">Quick cities</p>
+      <div class="chips" id="quickCities"></div>
+      <p class="foot-credit">
+        Data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>
+      </p>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <div class="main-inner">
+
+      <!-- ---------- DASHBOARD ---------- -->
+      <section class="section active" id="dashboard">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow"><i class="fa-solid fa-location-dot"></i><span id="locationMeta">Locating…</span></p>
+            <h1 class="page-title" id="locationName">AetherSense</h1>
+            <p class="page-sub"><i class="fa-regular fa-clock"></i><span id="localTime">—</span></p>
           </div>
-          <p class="window-note">Comfort score from temperature, rain chance, wind and air quality.</p>
+          <div class="status-pill">
+            <span class="dot"></span>
+            <span id="dataStatus">Connecting…</span>
+          </div>
+        </header>
+
+        <div class="dash-grid">
+          <article class="card hero">
+            <div class="hero-top">
+              <div class="hero-icon"><i id="heroIcon" class="fa-solid fa-cloud-sun"></i></div>
+              <div class="hero-readout">
+                <div class="hero-temp"><span id="heroTemp">—</span><span class="hero-unit">°C</span></div>
+                <p class="hero-cond" id="heroCond">Fetching conditions…</p>
+              </div>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <span class="hero-stat-label">Feels like</span>
+                <span class="hero-stat-value" id="heroFeels">—</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">High / Low</span>
+                <span class="hero-stat-value"><span id="heroHi">—</span> / <span id="heroLo">—</span></span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Rain chance</span>
+                <span class="hero-stat-value" id="heroRain">—</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card aqi-card">
+            <p class="card-label">Air Quality</p>
+            <div class="gauge" id="aqiGauge">
+              <div class="gauge-inner">
+                <span class="gauge-value" id="aqiValue">—</span>
+                <span class="gauge-unit">EAQI</span>
+              </div>
+            </div>
+            <p class="aqi-band" id="aqiBand">—</p>
+            <p class="aqi-note">European Air Quality Index</p>
+          </article>
         </div>
-      </div>
-    </article>
 
-    <h2 class="section-head">Current conditions</h2>
-    <div class="metrics">
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-temperature-half"></i></span>
-        <span class="metric-label">Feels like</span><strong class="metric-value" id="m-feels">—</strong></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-droplet"></i></span>
-        <span class="metric-label">Humidity</span><strong class="metric-value" id="m-humidity">—</strong></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-wind"></i></span>
-        <span class="metric-label">Wind</span><strong class="metric-value" id="m-wind">—</strong>
-        <span class="metric-sub" id="m-wind-dir"></span></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-gauge"></i></span>
-        <span class="metric-label">Pressure</span><strong class="metric-value" id="m-pressure">—</strong></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-eye"></i></span>
-        <span class="metric-label">Visibility</span><strong class="metric-value" id="m-visibility">—</strong></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-sun"></i></span>
-        <span class="metric-label">UV index</span><strong class="metric-value" id="m-uv">—</strong>
-        <span class="metric-sub" id="m-uv-sub"></span></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-cloud"></i></span>
-        <span class="metric-label">Cloud cover</span><strong class="metric-value" id="m-cloud">—</strong></div>
-      <div class="metric glass"><span class="metric-icon"><i class="fa-solid fa-umbrella"></i></span>
-        <span class="metric-label">Rain chance</span><strong class="metric-value" id="m-rain">—</strong>
-        <span class="metric-sub" id="m-rain-sub"></span></div>
-    </div>
-
-    <h2 class="section-head">7-day outlook</h2>
-    <div class="fc-grid glass" id="forecast-grid">
-      <p class="placeholder">Loading forecast…</p>
-    </div>
-
-    <p class="source-note">Data: Open-Meteo Forecast &amp; Air-Quality APIs · updated live on every search.</p>
-  </section>
-
-  <!-- ================= AIR QUALITY ================= -->
-  <section class="panel" id="panel-air">
-    <h2 class="section-head">Air quality — European AQI</h2>
-
-    <article class="aqi-hero glass">
-      <div class="aqi-headline">
-        <span class="aqi-value" id="aqi-value">—</span>
-        <div>
-          <span class="aqi-band" id="aqi-band">Awaiting data</span>
-          <p class="aqi-caption" id="aqi-caption">European Air Quality Index</p>
+        <div class="stat-grid">
+          <article class="card stat">
+            <i class="fa-solid fa-droplet stat-icon"></i>
+            <p class="stat-label">Humidity</p>
+            <p class="stat-value" id="statHumidity">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-wind stat-icon"></i>
+            <p class="stat-label">Wind</p>
+            <p class="stat-value" id="statWind">—</p>
+            <p class="stat-sub" id="statWindDir">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-gauge stat-icon"></i>
+            <p class="stat-label">Pressure</p>
+            <p class="stat-value" id="statPressure">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-sun stat-icon"></i>
+            <p class="stat-label">UV index</p>
+            <p class="stat-value" id="statUv">—</p>
+            <p class="stat-sub" id="statUvLabel">—</p>
+          </article>
         </div>
-      </div>
 
-      <div class="gauge">
-        <div class="gauge-track"><span class="gauge-marker" id="aqi-marker"></span></div>
-        <div class="gauge-scale">
-          <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100+</span>
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">Today's priorities</h2>
+            <button class="link-btn" data-jump="recommendations">View all <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+          <div class="priority-list" id="priorityList"></div>
+        </article>
+      </section>
+
+      <!-- ---------- WEATHER ---------- -->
+      <section class="section" id="weather">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Conditions</p>
+            <h1 class="page-title">Weather Detail</h1>
+          </div>
+        </header>
+
+        <article class="card">
+          <div class="card-head"><h2 class="card-title">Next 12 hours</h2></div>
+          <div class="hourly" id="hourlyStrip"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><h2 class="card-title">4-day outlook</h2></div>
+          <div class="daily" id="dailyList"></div>
+        </article>
+
+        <div class="stat-grid">
+          <article class="card stat">
+            <i class="fa-solid fa-cloud stat-icon"></i>
+            <p class="stat-label">Cloud cover</p>
+            <p class="stat-value" id="statCloud">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-wind stat-icon"></i>
+            <p class="stat-label">Wind gusts</p>
+            <p class="stat-value" id="statGusts">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-cloud-rain stat-icon"></i>
+            <p class="stat-label">Precipitation</p>
+            <p class="stat-value" id="statPrecip">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-eye stat-icon"></i>
+            <p class="stat-label">Visibility</p>
+            <p class="stat-value" id="statVisibility">—</p>
+          </article>
         </div>
-      </div>
+      </section>
 
-      <p class="aqi-advice" id="aqi-advice">Search a city to see air-quality guidance.</p>
-    </article>
+      <!-- ---------- AIR QUALITY ---------- -->
+      <section class="section" id="air">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Atmosphere</p>
+            <h1 class="page-title">Air Quality</h1>
+          </div>
+        </header>
 
-    <div class="pollutants">
-      <div class="pol-card glass"><span class="pol-name">PM2.5</span>
-        <strong class="pol-value" id="pol-pm25">—</strong><span class="pol-unit">µg/m³</span>
-        <span class="pol-tag" id="pol-pm25-tag"></span></div>
-      <div class="pol-card glass"><span class="pol-name">PM10</span>
-        <strong class="pol-value" id="pol-pm10">—</strong><span class="pol-unit">µg/m³</span>
-        <span class="pol-tag" id="pol-pm10-tag"></span></div>
-      <div class="pol-card glass"><span class="pol-name">O₃</span>
-        <strong class="pol-value" id="pol-o3">—</strong><span class="pol-unit">µg/m³</span></div>
-      <div class="pol-card glass"><span class="pol-name">NO₂</span>
-        <strong class="pol-value" id="pol-no2">—</strong><span class="pol-unit">µg/m³</span></div>
-      <div class="pol-card glass"><span class="pol-name">SO₂</span>
-        <strong class="pol-value" id="pol-so2">—</strong><span class="pol-unit">µg/m³</span></div>
-      <div class="pol-card glass"><span class="pol-name">CO</span>
-        <strong class="pol-value" id="pol-co">—</strong><span class="pol-unit">µg/m³</span></div>
+        <div class="air-grid">
+          <article class="card aqi-card aqi-card--large">
+            <p class="card-label">European AQI</p>
+            <div class="gauge gauge--lg" id="aqiGauge2">
+              <div class="gauge-inner">
+                <span class="gauge-value" id="aqiValue2">—</span>
+                <span class="gauge-unit">EAQI</span>
+              </div>
+            </div>
+            <p class="aqi-band" id="aqiBand2">—</p>
+            <p class="aqi-note" id="aqiNote2">Awaiting data</p>
+          </article>
+
+          <div class="pollutant-grid">
+            <article class="card pollutant">
+              <p class="stat-label">PM2.5</p>
+              <p class="stat-value" id="pm25">—</p>
+              <p class="stat-sub">µg/m³</p>
+              <div class="meter"><span id="pm25Bar"></span></div>
+            </article>
+            <article class="card pollutant">
+              <p class="stat-label">PM10</p>
+              <p class="stat-value" id="pm10">—</p>
+              <p class="stat-sub">µg/m³</p>
+              <div class="meter"><span id="pm10Bar"></span></div>
+            </article>
+            <article class="card pollutant">
+              <p class="stat-label">NO₂</p>
+              <p class="stat-value" id="no2">—</p>
+              <p class="stat-sub">µg/m³</p>
+            </article>
+            <article class="card pollutant">
+              <p class="stat-label">O₃</p>
+              <p class="stat-value" id="o3">—</p>
+              <p class="stat-sub">µg/m³</p>
+            </article>
+            <article class="card pollutant">
+              <p class="stat-label">SO₂</p>
+              <p class="stat-value" id="so2">—</p>
+              <p class="stat-sub">µg/m³</p>
+            </article>
+            <article class="card pollutant">
+              <p class="stat-label">CO</p>
+              <p class="stat-value" id="co">—</p>
+              <p class="stat-sub">µg/m³</p>
+            </article>
+          </div>
+        </div>
+
+        <article class="card">
+          <div class="card-head"><h2 class="card-title">What this means for you</h2></div>
+          <div class="advice-list" id="aqiAdvice"></div>
+        </article>
+      </section>
+
+      <!-- ---------- RECOMMENDATIONS ---------- -->
+      <section class="section" id="recommendations">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Intelligence</p>
+            <h1 class="page-title">Recommendations</h1>
+            <p class="page-sub">Contextual, rule-based guidance generated from live weather and air-quality data.</p>
+          </div>
+        </header>
+
+        <div class="rec-grid">
+          <div class="rec-col">
+            <div class="rec-col-head">
+              <i class="fa-solid fa-heart-pulse"></i><h2>Health</h2>
+            </div>
+            <div class="rec-list" id="recHealth"></div>
+          </div>
+          <div class="rec-col">
+            <div class="rec-col-head">
+              <i class="fa-solid fa-seedling"></i><h2>Agriculture</h2>
+            </div>
+            <div class="rec-list" id="recAgriculture"></div>
+          </div>
+          <div class="rec-col">
+            <div class="rec-col-head">
+              <i class="fa-solid fa-person-hiking"></i><h2>Outdoor Activity</h2>
+            </div>
+            <div class="rec-list" id="recOutdoor"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- AGRICULTURE ---------- -->
+      <section class="section" id="agriculture">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Flagship feature</p>
+            <h1 class="page-title">Agricultural Insights</h1>
+            <p class="page-sub">Universal weather-driven indicators — valid in any climate, from temperate to tropical.</p>
+          </div>
+        </header>
+
+        <article class="card agri-summary">
+          <div class="card-head">
+            <h2 class="card-title"><i class="fa-solid fa-clipboard-check"></i> Today's field verdict</h2>
+          </div>
+          <div class="agri-verdict" id="agriVerdict"></div>
+        </article>
+
+        <div class="agri-grid" id="agriGrid"></div>
+
+        <article class="card">
+          <div class="card-head"><h2 class="card-title">Recommended field actions</h2></div>
+          <div class="rec-list" id="agriActions"></div>
+        </article>
+      </section>
+
+      <!-- ---------- ABOUT ---------- -->
+      <section class="section" id="about">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">The project</p>
+            <h1 class="page-title">About AetherSense</h1>
+          </div>
+        </header>
+
+        <div class="about-grid">
+          <article class="card about-card">
+            <h2 class="card-title"><i class="fa-solid fa-star"></i> Unique selling point</h2>
+            <p>Most weather apps stop at the forecast. AetherSense converts free environmental data into <strong>three decision layers</strong> — personal health, agricultural action, and outdoor planning — inside one elegant interface. The agricultural engine is driven by <strong>universal weather parameters</strong> (humidity, wind, temperature, rainfall probability, UV), so its insights apply to farms in any climate. No proprietary sensors, no API key, no backend.</p>
+          </article>
+
+          <article class="card about-card">
+            <h2 class="card-title"><i class="fa-solid fa-chart-line"></i> Market fit</h2>
+            <ul class="tick-list">
+              <li><strong>Eco-tourism</strong> — optimal visit windows from comfort + air quality.</li>
+              <li><strong>Precision agriculture</strong> — irrigation, planting, spraying, and frost alerts.</li>
+              <li><strong>Public health</strong> — pollution exposure awareness for schools and offices.</li>
+              <li><strong>Smallholder advisory</strong> — globally portable field guidance without sensors.</li>
+            </ul>
+          </article>
+
+          <article class="card about-card">
+            <h2 class="card-title"><i class="fa-solid fa-code"></i> Tech stack</h2>
+            <ul class="tick-list">
+              <li>HTML5, CSS3 (custom properties, backdrop-filter), ES6+ JavaScript</li>
+              <li>Inter + Playfair Display — Google Fonts</li>
+              <li>Font Awesome 6 icons</li>
+              <li>Zero build step, zero runtime dependencies</li>
+            </ul>
+          </article>
+
+          <article class="card about-card">
+            <h2 class="card-title"><i class="fa-solid fa-database"></i> Data sources</h2>
+            <ul class="tick-list">
+              <li>Open-Meteo Geocoding API — city lookup</li>
+              <li>Open-Meteo Forecast API — current, hourly, daily, UV</li>
+              <li>Open-Meteo Air Quality API — European AQI, PM2.5, PM10, gases</li>
+              <li>All endpoints free and keyless</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- ---------- TEAM ---------- -->
+      <section class="section" id="team">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Credits</p>
+            <h1 class="page-title">Development Team</h1>
+          </div>
+        </header>
+        <div class="team-grid" id="teamGrid"></div>
+      </section>
+
     </div>
+  </main>
 
-    <p class="source-note">
-      AQI bands: 0–20 Good · 20–40 Fair · 40–60 Moderate · 60–80 Poor · 80–100 Very poor · 100+ Extremely poor.
-      PM2.5 reference: WHO 24-hour guideline = 15 µg/m³.
-    </p>
-  </section>
-
-  <!-- ================= INSIGHTS ================= -->
-  <section class="panel" id="panel-insights">
-    <h2 class="section-head">Intelligent recommendations</h2>
-    <p class="summary glass" id="insight-summary">Search a city to generate contextual advice.</p>
-
-    <div class="insights-grid">
-      <article class="rec-card glass">
-        <header class="rec-head"><i class="fa-solid fa-heart-pulse"></i><h3>Health</h3></header>
-        <ul class="rec-list" id="health-list"><li class="rec-empty">Awaiting data…</li></ul>
-      </article>
-      <article class="rec-card glass">
-        <header class="rec-head"><i class="fa-solid fa-seedling"></i><h3>Agriculture</h3></header>
-        <ul class="rec-list" id="agri-list"><li class="rec-empty">Awaiting data…</li></ul>
-      </article>
-      <article class="rec-card glass">
-        <header class="rec-head"><i class="fa-solid fa-person-hiking"></i><h3>Outdoor activity</h3></header>
-        <ul class="rec-list" id="outdoor-list"><li class="rec-empty">Awaiting data…</li></ul>
-      </article>
-    </div>
-
-    <p class="source-note">
-      Rules are global and climate-agnostic: derived from humidity, wind, temperature,
-      rain probability, UV and AQI — no region-specific crops are hard-coded.
-    </p>
-  </section>
-
-  <!-- ================= ABOUT ================= -->
-  <section class="panel" id="panel-about">
-    <h2 class="section-head">About AetherSense</h2>
-
-    <div class="about-grid">
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-bolt"></i> What it is</h3>
-        <p>AetherSense is a fully client-side environmental intelligence platform. It combines real-time weather, air-quality data and rule-based reasoning to answer a practical question: <em>what should I do right now, given the conditions here?</em></p>
-      </article>
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-star"></i> Unique selling proposition</h3>
-        <ul class="list">
-          <li>Three insight domains — health, agriculture, outdoor activity — in one interface.</li>
-          <li>Zero backend, zero database, zero API keys: deployable to any static host in minutes.</li>
-          <li>Adaptive glassmorphism UI that visually reflects the searched location's weather.</li>
-        </ul>
-      </article>
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-chart-line"></i> Market fit</h3>
-        <ul class="list">
-          <li><strong>Eco-tourism</strong> — optimal visit windows using comfort + air quality.</li>
-          <li><strong>Precision agriculture</strong> — irrigation, spraying, planting and frost guidance.</li>
-          <li><strong>Public health &amp; urban planning</strong> — pollution exposure awareness.</li>
-        </ul>
-      </article>
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-layer-group"></i> Tech stack</h3>
-        <ul class="list">
-          <li>HTML5 semantic markup · CSS3 variables, backdrop-filter, grid</li>
-          <li>ES6+ vanilla JavaScript — no frameworks, no build step</li>
-          <li>Inter + Playfair Display (Google Fonts) · Font Awesome 6</li>
-        </ul>
-      </article>
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-database"></i> Data sources</h3>
-        <ul class="list">
-          <li>Open-Meteo Geocoding API — city → coordinates</li>
-          <li>Open-Meteo Forecast API — current, hourly, 7-day</li>
-          <li>Open-Meteo Air-Quality API — European AQI, PM2.5, PM10, O₃, NO₂, SO₂, CO</li>
-          <li>All free for non-commercial use, no key required</li>
-        </ul>
-      </article>
-      <article class="about-card glass">
-        <h3><i class="fa-solid fa-code-branch"></i> Deployment</h3>
-        <ul class="list">
-          <li>Three files: <code>index.html</code>, <code>styles.css</code>, <code>script.js</code></li>
-          <li>Push to a GitHub repository root</li>
-          <li>Settings → Pages → Deploy from branch → <code>main</code> / <code>root</code></li>
-          <li>Live at <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code></li>
-        </ul>
-      </article>
-    </div>
-  </section>
-
-  <!-- ================= TEAM ================= -->
-  <section class="panel" id="panel-team">
-    <h2 class="section-head">Development team</h2>
-    <p class="section-sub">Conceived and realised by:</p>
-
-    <div class="team-grid">
-      <article class="team-card glass"><span class="avatar">KR</span>
-        <h3>Karuniadara Ellysabeth Rabay</h3><p>Concept &amp; Research</p></article>
-      <article class="team-card glass"><span class="avatar">KP</span>
-        <h3>Keyshawa Pramesthi Purbolaras</h3><p>UI / UX Design</p></article>
-      <article class="team-card glass"><span class="avatar">KF</span>
-        <h3>Khaula Rohmania Faisal</h3><p>Recommendation Engine</p></article>
-      <article class="team-card glass"><span class="avatar">KO</span>
-        <h3>Kirani Octavia</h3><p>Data Integration</p></article>
-      <article class="team-card glass"><span class="avatar">MA</span>
-        <h3>Muhammad Altavino</h3><p>Frontend Development</p></article>
-      <article class="team-card glass"><span class="avatar">MF</span>
-        <h3>Muhammad Fathan Nur Alauddin</h3><p>Entrepreneurship Analysis</p></article>
-    </div>
-
-    <p class="source-note">AetherSense — PKWU entrepreneurship project &amp; portfolio artefact.</p>
-  </section>
-
-</main>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
