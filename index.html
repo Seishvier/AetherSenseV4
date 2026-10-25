@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AetherSense — Real-Time Weather & Air Quality</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fa-solid fa-cloud-sun"></i>
+          <span>AetherSense</span>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="dashboard">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Dasbor</span>
+        </button>
+        <button class="nav-item" data-section="airquality">
+          <i class="fa-solid fa-wind"></i>
+          <span>Kualitas Udara</span>
+        </button>
+        <button class="nav-item" data-section="recommendations">
+          <i class="fa-solid fa-lightbulb"></i>
+          <span>Rekomendasi</span>
+        </button>
+        <button class="nav-item" data-section="about">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Tentang</span>
+        </button>
+        <button class="nav-item" data-section="team">
+          <i class="fa-solid fa-users"></i>
+          <span>Tim</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Open-Meteo API</p>
+        <p class="version">v1.0 · PKWU Project</p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Search Bar -->
+      <header class="top-bar">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" id="cityInput" placeholder="Cari kota di seluruh dunia..." autocomplete="off" />
+          <button id="searchBtn" aria-label="Cari">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+        <div class="current-location" id="currentLocation">
+          <i class="fa-solid fa-map-marker-alt"></i>
+          <span>Malang, Indonesia</span>
+        </div>
+      </header>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Mengambil data atmosfer...</p>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" id="errorMessage" hidden>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="errorText">Terjadi kesalahan. Silakan coba lagi.</span>
+      </div>
+
+      <!-- Dashboard Section -->
+      <section class="section active" id="dashboard">
+        <div class="section-header">
+          <h1 class="section-title">Dasbor Cuaca</h1>
+          <p class="section-subtitle" id="lastUpdate">Memuat data...</p>
+        </div>
+
+        <div class="weather-hero glass-card">
+          <div class="weather-main">
+            <div class="temp-block">
+              <span class="temperature" id="temperature">--</span>
+              <span class="unit">°C</span>
+            </div>
+            <div class="weather-desc">
+              <i class="weather-icon" id="weatherIcon"></i>
+              <p id="weatherDescription">—</p>
+              <p class="feels-like">Terasa seperti <span id="feelsLike">--</span>°C</p>
+            </div>
+          </div>
+          <div class="weather-meta">
+            <div class="meta-item">
+              <i class="fa-solid fa-droplet"></i>
+              <span>Kelembapan</span>
+              <strong id="humidity">--%</strong>
+            </div>
+            <div class="meta-item">
+              <i class="fa-solid fa-wind"></i>
+              <span>Angin</span>
+              <strong id="windSpeed">-- km/h</strong>
+            </div>
+            <div class="meta-item">
+              <i class="fa-solid fa-gauge"></i>
+              <span>Tekanan</span>
+              <strong id="pressure">-- hPa</strong>
+            </div>
+            <div class="meta-item">
+              <i class="fa-solid fa-eye"></i>
+              <span>Jarak Pandang</span>
+              <strong id="visibility">-- km</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card glass-card">
+            <i class="fa-solid fa-temperature-half"></i>
+            <h3>Suhu Maks / Min</h3>
+            <p><span id="tempMax">--</span>° / <span id="tempMin">--</span>°</p>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="fa-solid fa-cloud-rain"></i>
+            <h3>Peluang Hujan</h3>
+            <p id="precipitationProb">--%</p>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="fa-solid fa-sun"></i>
+            <h3>Indeks UV</h3>
+            <p id="uvIndex">--</p>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="fa-solid fa-cloud"></i>
+            <h3>Tutupan Awan</h3>
+            <p id="cloudCover">--%</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Air Quality Section -->
+      <section class="section" id="airquality">
+        <div class="section-header">
+          <h1 class="section-title">Kualitas Udara</h1>
+          <p class="section-subtitle">European Air Quality Index (EAQI)</p>
+        </div>
+
+        <div class="aqi-hero glass-card">
+          <div class="aqi-main">
+            <div class="aqi-value" id="aqiValue">--</div>
+            <div class="aqi-label" id="aqiLabel">Memuat...</div>
+            <div class="aqi-bar">
+              <div class="aqi-fill" id="aqiFill"></div>
+            </div>
+          </div>
+          <div class="pollutant-grid">
+            <div class="pollutant-item">
+              <span class="pollutant-name">PM2.5</span>
+              <strong id="pm25">--</strong>
+              <span class="unit">µg/m³</span>
+            </div>
+            <div class="pollutant-item">
+              <span class="pollutant-name">PM10</span>
+              <strong id="pm10">--</strong>
+              <span class="unit">µg/m³</span>
+            </div>
+            <div class="pollutant-item">
+              <span class="pollutant-name">Ozone (O₃)</span>
+              <strong id="ozone">--</strong>
+              <span class="unit">µg/m³</span>
+            </div>
+            <div class="pollutant-item">
+              <span class="pollutant-name">Nitrogen Dioxide</span>
+              <strong id="no2">--</strong>
+              <span class="unit">µg/m³</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="aqi-info glass-card">
+          <h3><i class="fa-solid fa-info-circle"></i> Apa arti indeks ini?</h3>
+          <ul>
+            <li><span class="badge good">1–2 Baik</span> — Udara bersih, aman untuk semua aktivitas.</li>
+            <li><span class="badge fair">3 Sedang</span> — Masih aman, tapi kelompok sensitif perlu waspada.</li>
+            <li><span class="badge moderate">4 Cukup</span> — Kurangi aktivitas outdoor yang berat.</li>
+            <li><span class="badge poor">5 Buruk</span> — Hindari olahraga outdoor, tutup jendela.</li>
+            <li><span class="badge very-poor">6 Sangat Buruk</span> — Tetap di dalam ruangan sedapat mungkin.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Recommendations Section -->
+      <section class="section" id="recommendations">
+        <div class="section-header">
+          <h1 class="section-title">Rekomendasi Cerdas</h1>
+          <p class="section-subtitle">Saran berbasis kondisi cuaca & kualitas udara saat ini</p>
+        </div>
+
+        <div class="reco-grid">
+          <div class="reco-card glass-card" id="healthReco">
+            <div class="reco-header">
+              <i class="fa-solid fa-heart-pulse"></i>
+              <h3>Kesehatan</h3>
+            </div>
+            <ul id="healthList">
+              <li>Memuat rekomendasi...</li>
+            </ul>
+          </div>
+
+          <div class="reco-card glass-card" id="agriReco">
+            <div class="reco-header">
+              <i class="fa-solid fa-seedling"></i>
+              <h3>Pertanian</h3>
+            </div>
+            <ul id="agriList">
+              <li>Memuat rekomendasi...</li>
+            </ul>
+          </div>
+
+          <div class="reco-card glass-card" id="outdoorReco">
+            <div class="reco-header">
+              <i class="fa-solid fa-person-hiking"></i>
+              <h3>Aktivitas Outdoor</h3>
+            </div>
+            <ul id="outdoorList">
+              <li>Memuat rekomendasi...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section class="section" id="about">
+        <div class="section-header">
+          <h1 class="section-title">Tentang AetherSense</h1>
+          <p class="section-subtitle">Real-Time Weather & Air Quality Intelligence Platform</p>
+        </div>
+
+        <div class="about-content glass-card">
+          <p>
+            AetherSense adalah aplikasi web sepenuhnya client-side yang menyediakan data cuaca dan kualitas udara real-time
+            untuk kota manapun di dunia, dilengkapi rekomendasi cerdas untuk kesehatan, pertanian, dan aktivitas outdoor.
+          </p>
+          <p>
+            Platform ini tidak membutuhkan database, API key, maupun infrastruktur backend — ideal untuk deployment cepat
+            di GitHub Pages atau layanan static hosting lainnya.
+          </p>
+
+          <h3>USP & Market Fit</h3>
+          <ul>
+            <li><strong>Eco-tourism</strong> — Saran waktu optimal berkunjung berdasarkan kenyamanan cuaca & kualitas udara.</li>
+            <li><strong>Precision Agriculture</strong> — Rekomendasi irigasi, tanam, dan perlindungan tanaman.</li>
+            <li><strong>Public Health</strong> — Dukungan kesadaran dan pengambilan keputusan terkait paparan polusi udara.</li>
+          </ul>
+
+          <h3>Tech Stack</h3>
+          <div class="tech-tags">
+            <span>HTML5</span>
+            <span>CSS3 (Glassmorphism)</span>
+            <span>Vanilla JavaScript</span>
+            <span>Open-Meteo API</span>
+            <span>Font Awesome 6</span>
+            <span>Google Fonts</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Section -->
+      <section class="section" id="team">
+        <div class="section-header">
+          <h1 class="section-title">Tim Pengembang</h1>
+          <p class="section-subtitle">Mereka yang merangkai AetherSense menjadi kenyataan</p>
+        </div>
+
+        <div class="team-grid">
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Karuniadara Ellysabeth Rabay</h4>
+          </div>
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Keyshawa Pramesthi Purbolaras</h4>
+          </div>
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Khaula Rohmania Faisal</h4>
+          </div>
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Kirani Octavia</h4>
+          </div>
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Muhammad Altavino</h4>
+          </div>
+          <div class="team-card glass-card">
+            <div class="team-avatar"><i class="fa-solid fa-user"></i></div>
+            <h4>Muhammad Fathan Nur Alauddin</h4>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
