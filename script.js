@@ -1048,12 +1048,16 @@ function openSidebar() {
   $('#sidebar').classList.add('open');
   $('#scrim').hidden = false;
   $('#menuToggle').setAttribute('aria-expanded', 'true');
+  // Change icon to 'X'
+  $('#menuToggle').innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
 }
 
 function closeSidebar() {
   $('#sidebar').classList.remove('open');
   $('#scrim').hidden = true;
   $('#menuToggle').setAttribute('aria-expanded', 'false');
+  // Change icon back to hamburger
+  $('#menuToggle').innerHTML = '<i class="fa-solid fa-bars"></i>'; 
 }
 
 /* ------------------------------------------------------------
