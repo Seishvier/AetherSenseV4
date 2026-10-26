@@ -779,7 +779,7 @@ ul { list-style: none; }
   .main { padding: 40px 30px 80px; }
 }
 @media (max-width: 900px) {
-  .sidebar { transform: translateX(-100%); box-shadow: var(--shadow); }
+  .sidebar { transform: translateX(-100%); box-shadow: var(--shadow); padding.top: 76px: }
   .sidebar.open { transform: translateX(0); }
   .main { margin-left: 0; padding: 84px 20px 70px; }
   .menu-toggle { display: grid; }
