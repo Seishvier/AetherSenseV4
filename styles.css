@@ -575,3 +575,16 @@ ul { list-style: none; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* === TRIK PETA GELAP TANPA API KEY === */
+.dark-tiles {
+  /* Membalik warna, mengurangi saturasi, dan menyesuaikan rona agar gelap kebiruan */
+  filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.2) saturate(0.5);
+  transition: filter 0.3s ease;
+}
+
+/* Pastikan pop-up dan kontrol peta tetap terlihat normal */
+.leaflet-popup-content-wrapper,
+.leaflet-control-zoom {
+  filter: invert(0) hue-rotate(0deg) brightness(1) contrast(1) saturate(1);
+}
