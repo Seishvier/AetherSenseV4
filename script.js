@@ -1,6 +1,5 @@
 /* ============================================================
    AetherSense — script.js
-   Vanilla JS. No build step, no dependencies.
    ============================================================ */
 'use strict';
 
@@ -217,14 +216,8 @@ function aqiBand(aqi) {
 
 /* ------------------------------------------------------------
    6. GLOBAL AGRICULTURAL ENGINE
-   Weather-driven indicators that apply in any climate.
    ------------------------------------------------------------ */
 
-/**
- * Each indicator: { id, name, note, icon, type, score, tag, color, action }
- *   type = 'risk'  → higher score is worse
- *   type = 'suit'  → higher score is better
- */
 function computeAgriIndicators(ctx) {
   const {
     temp, humidity, wind, gusts, precip, precipProb, cloud,
@@ -235,19 +228,16 @@ function computeAgriIndicators(ctx) {
   const out = [];
 
   /* --- 1. Fungal disease pressure (risk) --- */
-  const fH = clamp((humidity - 60) / 35, 0, 1);          // 60% → 0, 95% → 1
-  const fW = clamp((18 - wind) / 18, 0, 1);              // low wind keeps leaves wet
-  const fT = 1 - Math.min(Math.abs(temp - 22) / 13, 1);  // 15–28 °C optimal
+  const fH = clamp((humidity - 60) / 35, 0, 1);
+  const fW = clamp((18 - wind) / 18, 0, 1);
+  const fT = 1 - Math.min(Math.abs(temp - 22) / 13, 1);
   const fC = pct(cloud) / 100;
   const fP = pct(precipProb) / 100;
   const fungal = clamp((0.42 * fH + 0.22 * fW + 0.18 * fT + 0.1 * fC + 0.08 * fP) * 100, 0, 100);
   out.push({
-    id: 'fungal',
-    name: 'Fungal disease pressure',
+    id: 'fungal', name: 'Fungal disease pressure',
     note: 'Humidity, low wind and moderate temperatures keep leaf surfaces wet — the prime driver of fungal outbreaks.',
-    icon: 'fa-bacteria',
-    type: 'risk',
-    score: fungal,
+    icon: 'fa-bacteria', type: 'risk', score: fungal,
     action: fungal >= 60
       ? `High fungal risk (${fmt(humidity)}% RH, ${fmt(wind)} km/h wind). Scout leaves now and consider preventive fungicide.`
       : fungal >= 40
@@ -263,12 +253,9 @@ function computeAgriIndicators(ctx) {
   const iRecent = clamp(precip / 5, 0, 1);
   const irrigation = clamp((0.45 * iT + 0.35 * iD + 0.1 * iW - 0.55 * iRain - 0.2 * iRecent) * 100, 0, 100);
   out.push({
-    id: 'irrigation',
-    name: 'Irrigation demand',
+    id: 'irrigation', name: 'Irrigation demand',
     note: 'Combines temperature, humidity, wind-driven evapotranspiration and incoming rain.',
-    icon: 'fa-droplet',
-    type: 'risk',
-    score: irrigation,
+    icon: 'fa-droplet', type: 'risk', score: irrigation,
     action: irrigation >= 60
       ? `High water demand (${fmt(temp)}°C, ${fmt(humidity)}% RH). Irrigate early morning or late afternoon to limit evaporation.`
       : irrigation >= 40
@@ -288,12 +275,9 @@ function computeAgriIndicators(ctx) {
   if (storm) spray = 0;
   spray = clamp(spray, 0, 100);
   out.push({
-    id: 'spray',
-    name: 'Spray window',
+    id: 'spray', name: 'Spray window',
     note: 'Wind drift, rain wash-off and temperature all determine whether spraying is safe and effective.',
-    icon: 'fa-spray-can',
-    type: 'suit',
-    score: spray,
+    icon: 'fa-spray-can', type: 'suit', score: spray,
     action: spray >= 65
       ? `Good window for spraying — wind ${fmt(wind)} km/h and rain chance ${fmt(precipProb)}% are within limits.`
       : wind > 20
@@ -313,12 +297,9 @@ function computeAgriIndicators(ctx) {
   if (storm)           field = 0;
   field = clamp(field, 0, 100);
   out.push({
-    id: 'field',
-    name: 'Field work & planting',
+    id: 'field', name: 'Field work & planting',
     note: 'Accessibility and comfort for planting, transplanting, weeding, and routine field work.',
-    icon: 'fa-tractor',
-    type: 'suit',
-    score: field,
+    icon: 'fa-tractor', type: 'suit', score: field,
     action: field >= 70
       ? `Suitable conditions for planting, transplanting and field maintenance today.`
       : field >= 40
@@ -329,12 +310,9 @@ function computeAgriIndicators(ctx) {
   /* --- 5. Heat stress on crops (risk) --- */
   const heat = clamp(((ctx.feels - 28) / 12) * 100, 0, 100);
   out.push({
-    id: 'heat',
-    name: 'Heat stress on crops',
+    id: 'heat', name: 'Heat stress on crops',
     note: 'Feels-like temperature above 28 °C accelerates transpiration and can scorch sensitive leaves.',
-    icon: 'fa-temperature-high',
-    type: 'risk',
-    score: heat,
+    icon: 'fa-temperature-high', type: 'risk', score: heat,
     action: heat >= 60
       ? `Heat stress risk (feels like ${fmt(ctx.feels)}°C). Increase watering at dawn/dusk and provide shade for seedlings.`
       : heat >= 35
@@ -348,12 +326,9 @@ function computeAgriIndicators(ctx) {
   const dR = clamp((40 - precipProb) / 40, 0, 1);
   const drought = clamp((0.4 * dT + 0.35 * dH + 0.25 * dR) * 100, 0, 100);
   out.push({
-    id: 'drought',
-    name: 'Drought / dry-spell stress',
+    id: 'drought', name: 'Drought / dry-spell stress',
     note: 'High temperature + low humidity + low rain probability — soil dries out quickly.',
-    icon: 'fa-sun',
-    type: 'risk',
-    score: drought,
+    icon: 'fa-sun', type: 'risk', score: drought,
     action: drought >= 60
       ? `Dry-spell risk. Adjust watering schedule and mulch to retain soil moisture.`
       : drought >= 35
@@ -364,12 +339,9 @@ function computeAgriIndicators(ctx) {
   /* --- 7. Wind exposure / damage (risk) --- */
   const windRisk = clamp(((gusts - 20) / 55) * 100, 0, 100);
   out.push({
-    id: 'wind',
-    name: 'Wind exposure',
+    id: 'wind', name: 'Wind exposure',
     note: 'Gusts above 20 km/h can damage young plants, flowers and trellised crops.',
-    icon: 'fa-wind',
-    type: 'risk',
-    score: windRisk,
+    icon: 'fa-wind', type: 'risk', score: windRisk,
     action: windRisk >= 55
       ? `Strong wind advisory — gusts to ${fmt(gusts)} km/h. Secure young plants, stakes, and delay spraying.`
       : windRisk >= 30
@@ -377,7 +349,7 @@ function computeAgriIndicators(ctx) {
         : `Wind is within a safe range for exposed crops.`
   });
 
-  /* --- 8. Frost risk (risk) — uses today's daily minimum --- */
+  /* --- 8. Frost risk (risk) --- */
   let frost = 0;
   if (dailyMin <= 0)      frost = 100;
   else if (dailyMin <= 2) frost = 85;
@@ -385,12 +357,9 @@ function computeAgriIndicators(ctx) {
   else if (dailyMin <= 6) frost = 45;
   else if (dailyMin <= 8) frost = 25;
   out.push({
-    id: 'frost',
-    name: 'Frost risk',
+    id: 'frost', name: 'Frost risk',
     note: 'Based on today\'s forecast minimum temperature at the location.',
-    icon: 'fa-snowflake',
-    type: 'risk',
-    score: frost,
+    icon: 'fa-snowflake', type: 'risk', score: frost,
     action: frost >= 45
       ? `Frost risk (min ${fmt(dailyMin, 1)}°C). Cover sensitive crops overnight and avoid watering late.`
       : frost > 0
@@ -407,12 +376,9 @@ function computeAgriIndicators(ctx) {
   if (storm) harvest = 0;
   harvest = clamp(harvest, 0, 100);
   out.push({
-    id: 'harvest',
-    name: 'Harvest window',
+    id: 'harvest', name: 'Harvest window',
     note: 'Dry, calm air protects harvested grain, fruit and vegetables from spoilage and loss.',
-    icon: 'fa-wheat-awn',
-    type: 'suit',
-    score: harvest,
+    icon: 'fa-wheat-awn', type: 'suit', score: harvest,
     action: harvest >= 65
       ? `Good dry window for harvest and post-harvest drying.`
       : harvest >= 35
@@ -572,7 +538,6 @@ function generateRecommendations(ctx, agri) {
   }
 
   /* ================= AGRICULTURE ================= */
-  /* Summarise the strongest agri indicators into narrative recommendations. */
   const rank = { Low: 0, Mild: 1, Moderate: 2, High: 3, Severe: 4,
                  'Very poor': 4, Poor: 3, Fair: 2, Good: 1, Excellent: 0 };
 
@@ -590,7 +555,7 @@ function generateRecommendations(ctx, agri) {
       push('agriculture', 'good', ind.icon, `${ind.name} — ${ind.tag}`, ind.action));
   }
 
-  /* Fallbacks so no column is ever empty */
+  /* Fallbacks */
   const fallback = {
     health:      { sev: 'good', icon: 'fa-circle-check', title: 'No health alerts', text: 'Current conditions pose no specific health risk.' },
     agriculture: { sev: 'good', icon: 'fa-circle-check', title: 'No agricultural alerts', text: 'Conditions are within normal operating ranges.' },
@@ -604,7 +569,49 @@ function generateRecommendations(ctx, agri) {
 }
 
 /* ------------------------------------------------------------
-   8. Rendering
+   8. Leaflet Map Logic
+   ------------------------------------------------------------ */
+let map;
+let marker;
+let radarLayer;
+
+function initMap() {
+  map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 8);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  // Tile Layer Gelap
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  // Radar Hujan Real-time
+  radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/nowcast_0/{z}/{x}/{y}/4/1_1.png', {
+    opacity: 0.6, attribution: 'Radar &copy; RainViewer'
+  }).addTo(map);
+}
+
+function updateMap(loc, ctx) {
+  if (!map) return;
+  map.flyTo([loc.latitude, loc.longitude], 10, { duration: 1.5 });
+  
+  if (marker) map.removeLayer(marker);
+  
+  const popupHtml = `
+    <h4>${loc.name}</h4>
+    <p style="margin-bottom:2px;"><i class="fa-solid fa-temperature-half" style="color:#ffd166;"></i> Suhu: <b>${fmt(ctx.temp)}°C</b></p>
+    <p style="margin-bottom:2px;"><i class="fa-solid fa-lungs" style="color:#4ade80;"></i> AQI: <b>${fmt(ctx.aqi)}</b></p>
+    <p><i class="fa-solid fa-cloud-rain" style="color:#60a5fa;"></i> Peluang Hujan: <b>${fmt(ctx.precipProb)}%</b></p>
+  `;
+
+  marker = L.marker([loc.latitude, loc.longitude])
+    .addTo(map)
+    .bindPopup(popupHtml)
+    .openPopup();
+}
+
+/* ------------------------------------------------------------
+   9. Rendering
    ------------------------------------------------------------ */
 
 function applyTheme(theme) {
@@ -614,16 +621,11 @@ function applyTheme(theme) {
 function renderHeader() {
   const loc = state.location;
   if (!loc) return;
-
   $('#locationName').textContent = loc.name || 'Unknown';
-
   const parts = [loc.admin1, loc.country].filter(p => p && p !== loc.name);
   $('#locationMeta').textContent = parts.length ? parts.join(' · ') : 'Location';
-
   updateClock();
-  $('#dataStatus').textContent = state.lastUpdated
-    ? `Updated ${state.lastUpdated}`
-    : 'Live data';
+  $('#dataStatus').textContent = state.lastUpdated ? `Updated ${state.lastUpdated}` : 'Live data';
 }
 
 function updateClock() {
@@ -631,8 +633,7 @@ function updateClock() {
   const tz = state.weather.timezone || 'auto';
   try {
     const text = new Intl.DateTimeFormat('en-GB', {
-      timeZone: tz,
-      weekday: 'long', day: 'numeric', month: 'long',
+      timeZone: tz, weekday: 'long', day: 'numeric', month: 'long',
       hour: '2-digit', minute: '2-digit', hour12: false
     }).format(new Date());
     $('#localTime').textContent = text;
@@ -644,17 +645,14 @@ function updateClock() {
 function renderHero(ctx) {
   const wmo = WMO[ctx.code] || WMO[0];
   const icon = (!ctx.isDay && wmo.night) ? wmo.night : wmo.icon;
-
   $('#heroIcon').className = `fa-solid ${icon}`;
   $('#heroTemp').textContent = fmt(ctx.temp);
   $('#heroCond').textContent = wmo.label;
   $('#heroFeels').textContent = `${fmt(ctx.feels)}°C`;
-
   const d = state.weather.daily;
   $('#heroHi').textContent = `${fmt(d.temperature_2m_max[0])}°`;
   $('#heroLo').textContent = `${fmt(d.temperature_2m_min[0])}°`;
   $('#heroRain').textContent = `${fmt(ctx.precipProb)}%`;
-
   state.lastUpdated = state.weather.current.time.slice(11, 16);
 }
 
@@ -673,7 +671,6 @@ function renderStats(ctx) {
   $('#statPressure').textContent = `${fmt(ctx.pressure)} hPa`;
   $('#statUv').textContent = fmt(ctx.uv, 1);
   $('#statUvLabel').textContent = uvLabel(ctx.uv);
-
   $('#statCloud').textContent = `${fmt(ctx.cloud)}%`;
   $('#statGusts').textContent = `${fmt(ctx.gusts)} km/h`;
   $('#statPrecip').textContent = `${fmt(ctx.precip, 1)} mm`;
@@ -683,7 +680,6 @@ function renderStats(ctx) {
 function renderAqi(ctx) {
   const band = aqiBand(ctx.aqi);
   const p = clamp((ctx.aqi / 120) * 100, 0, 100);
-
   [['#aqiGauge', '#aqiValue', '#aqiBand'],
    ['#aqiGauge2', '#aqiValue2', '#aqiBand2']].forEach(([g, v, b]) => {
     const gauge = $(g);
@@ -695,41 +691,30 @@ function renderAqi(ctx) {
     bandEl.textContent = band.label;
     bandEl.style.color = band.color;
   });
-
   const note = $('#aqiNote2');
   if (note) {
-    note.textContent = ctx.aqi <= 40
-      ? 'Safe for general outdoor activity.'
-      : ctx.aqi <= 60
-        ? 'Sensitive groups should take care.'
-        : 'Reduce prolonged outdoor exertion.';
+    note.textContent = ctx.aqi <= 40 ? 'Safe for general outdoor activity.'
+      : ctx.aqi <= 60 ? 'Sensitive groups should take care.' : 'Reduce prolonged outdoor exertion.';
   }
-
   $('#pm25').textContent = fmt(ctx.pm25, 1);
   $('#pm10').textContent = fmt(ctx.pm10, 1);
   $('#no2').textContent = fmt(ctx.no2, 1);
   $('#o3').textContent = fmt(ctx.o3, 1);
   $('#so2').textContent = fmt(ctx.so2, 1);
   $('#co').textContent = fmt(ctx.co, 0);
-
   $('#pm25Bar').style.width = `${clamp((ctx.pm25 / 75) * 100, 2, 100)}%`;
   $('#pm10Bar').style.width = `${clamp((ctx.pm10 / 150) * 100, 2, 100)}%`;
 
   const advice = $('#aqiAdvice');
   advice.innerHTML = '';
   const items = [];
-
   if (ctx.aqi <= 20) items.push(['good', 'fa-lungs', 'Ideal conditions', 'Air quality is excellent — no precautions needed.']);
   else if (ctx.aqi <= 40) items.push(['good', 'fa-lungs', 'Generally safe', 'Fine for most activities; extremely sensitive people may notice minor effects.']);
   else if (ctx.aqi <= 60) items.push(['warn', 'fa-mask-face', 'Sensitive groups affected', 'Children, the elderly, and people with asthma should shorten outdoor exposure.']);
   else if (ctx.aqi <= 80) items.push(['warn', 'fa-mask-face', 'Unhealthy for sensitive groups', 'Limit outdoor exertion; keep windows closed during peak traffic hours.']);
   else items.push(['danger', 'fa-triangle-exclamation', 'Health alert', 'Avoid outdoor exertion. Use filtration indoors and wear an N95 outdoors if necessary.']);
-
-  if (ctx.pm25 > 15) items.push(['warn', 'fa-smog', 'PM2.5 above WHO guideline',
-    `Current PM2.5 is ${fmt(ctx.pm25, 1)} µg/m³ versus the WHO 24-hour guideline of 15 µg/m³.`]);
-  if (ctx.pm10 > 45) items.push(['warn', 'fa-smog', 'Coarse dust elevated',
-    `PM10 at ${fmt(ctx.pm10, 1)} µg/m³ — dust suppression and indoor filtration help.`]);
-
+  if (ctx.pm25 > 15) items.push(['warn', 'fa-smog', 'PM2.5 above WHO guideline', `Current PM2.5 is ${fmt(ctx.pm25, 1)} µg/m³ versus the WHO 24-hour guideline of 15 µg/m³.`]);
+  if (ctx.pm10 > 45) items.push(['warn', 'fa-smog', 'Coarse dust elevated', `PM10 at ${fmt(ctx.pm10, 1)} µg/m³ — dust suppression and indoor filtration help.`]);
   items.forEach(([sev, icon, title, text]) => {
     advice.insertAdjacentHTML('beforeend', `
       <div class="rec rec--${sev}">
@@ -744,13 +729,11 @@ function renderHourly() {
   const start = hourlyIndexNow(w);
   const strip = $('#hourlyStrip');
   strip.innerHTML = '';
-
   const end = Math.min(start + 12, w.hourly.time.length);
   for (let i = start; i < end; i++) {
     const hour = w.hourly.time[i].slice(11, 16);
     const wmo = WMO[w.hourly.weather_code[i]] || WMO[0];
     const rain = w.hourly.precipitation_probability?.[i] ?? 0;
-
     const cell = document.createElement('div');
     cell.className = 'hour-cell' + (i === start ? ' hour-cell--now' : '');
     cell.innerHTML = `
@@ -766,13 +749,10 @@ function renderDaily() {
   const d = state.weather.daily;
   const list = $('#dailyList');
   list.innerHTML = '';
-
   for (let i = 0; i < d.time.length; i++) {
     const date = new Date(`${d.time[i]}T12:00:00`);
-    const label = i === 0 ? 'Today'
-      : date.toLocaleDateString('en-GB', { weekday: 'short' });
+    const label = i === 0 ? 'Today' : date.toLocaleDateString('en-GB', { weekday: 'short' });
     const wmo = WMO[d.weather_code[i]] || WMO[0];
-
     const row = document.createElement('div');
     row.className = 'day-row';
     row.innerHTML = `
@@ -795,7 +775,6 @@ function recMarkup(rec) {
 function renderRecommendations(ctx, agri) {
   const recs = generateRecommendations(ctx, agri);
   const paint = (el, arr) => { el.innerHTML = arr.slice(0, 6).map(recMarkup).join(''); };
-
   paint($('#recHealth'), recs.health);
   paint($('#recAgriculture'), recs.agriculture);
   paint($('#recOutdoor'), recs.outdoor);
@@ -803,7 +782,6 @@ function renderRecommendations(ctx, agri) {
 
   const rank = { danger: 3, warn: 2, info: 1, good: 0 };
   const pickTop = arr => [...arr].sort((a, b) => rank[b.sev] - rank[a.sev])[0];
-
   const tops = [pickTop(recs.health), pickTop(recs.agriculture), pickTop(recs.outdoor)];
   const colorFor = sev => ({ danger: 'var(--danger)', warn: 'var(--warn)', good: 'var(--good)' }[sev] || 'var(--info)');
 
@@ -815,7 +793,6 @@ function renderRecommendations(ctx, agri) {
 }
 
 function renderAgriculture(agri) {
-  /* --- Overall field verdict (uses field-work indicator) --- */
   const field = agri.find(i => i.id === 'field');
   const verdictEl = $('#agriVerdict');
   verdictEl.style.setProperty('--vc', field.color);
@@ -827,7 +804,6 @@ function renderAgriculture(agri) {
     </div>
     <div class="agri-verdict-score">${field.score}<span> / 100</span></div>`;
 
-  /* --- Indicator grid --- */
   const grid = $('#agriGrid');
   grid.innerHTML = '';
   agri.forEach(ind => {
@@ -849,7 +825,6 @@ function renderAgriculture(agri) {
         <div class="meter"><span style="background:${ind.color}"></span></div>
       </div>`;
     grid.appendChild(card);
-
     requestAnimationFrame(() => {
       const bar = card.querySelector('.meter span');
       if (bar) bar.style.width = `${ind.score}%`;
@@ -858,9 +833,7 @@ function renderAgriculture(agri) {
 }
 
 function renderTeam() {
-  const initials = name =>
-    name.split(/\s+/).map(p => p[0]).join('').slice(0, 3).toUpperCase();
-
+  const initials = name => name.split(/\s+/).map(p => p[0]).join('').slice(0, 3).toUpperCase();
   $('#teamGrid').innerHTML = TEAM.map(name => `
     <article class="card member">
       <div class="member-avatar">${initials(name)}</div>
@@ -890,10 +863,13 @@ function renderAll() {
   renderDaily();
   renderRecommendations(ctx, agri);
   renderAgriculture(agri);
+  
+  // Panggil fungsi update peta
+  updateMap(state.location, ctx);
 }
 
 /* ------------------------------------------------------------
-   9. Loading / errors
+   10. Loading / errors
    ------------------------------------------------------------ */
 
 function setLoading(on) {
@@ -922,7 +898,7 @@ function showToast(message) {
 }
 
 /* ------------------------------------------------------------
-   10. Loader
+   11. Loader
    ------------------------------------------------------------ */
 
 async function loadLocation(loc) {
@@ -930,14 +906,12 @@ async function loadLocation(loc) {
   try {
     const [weather, air] = await Promise.all([
       fetchWeather(loc),
-      fetchAir(loc).catch(() => null)   // air failure must not block weather
+      fetchAir(loc).catch(() => null)
     ]);
-
     state.location = loc;
     state.weather = weather;
     state.air = air;
     state.timezone = weather.timezone || 'auto';
-
     renderAll();
   } catch (err) {
     showToast(err.message || 'Unable to load environmental data. Please try again.');
@@ -947,7 +921,7 @@ async function loadLocation(loc) {
 }
 
 /* ------------------------------------------------------------
-   11. Search
+   12. Search
    ------------------------------------------------------------ */
 
 let searchTimer = null;
@@ -962,13 +936,11 @@ function hideSuggestions() {
 
 function renderSuggestions(results) {
   const box = $('#suggestions');
-
   if (!results.length) {
     box.innerHTML = `<li><span class="sug-name">No matches</span><span class="sug-meta">Try another spelling</span></li>`;
     box.hidden = false;
     return;
   }
-
   box.innerHTML = results.map((r, i) => {
     const meta = [r.admin1, r.country].filter(Boolean).join(', ');
     return `<li role="option" data-idx="${i}">
@@ -986,7 +958,6 @@ function renderSuggestions(results) {
       loadLocation(r);
     });
   });
-
   box._results = results;
 }
 
@@ -1004,7 +975,6 @@ async function runSuggest(q) {
 async function submitSearch() {
   const q = $('#searchInput').value.trim();
   if (q.length < 2) return;
-
   const box = $('#suggestions');
   if (!box.hidden && box._results?.length) {
     const first = box._results[0];
@@ -1013,7 +983,6 @@ async function submitSearch() {
     loadLocation(first);
     return;
   }
-
   setLoading(true);
   try {
     const results = await geocode(q, 1);
@@ -1029,16 +998,14 @@ async function submitSearch() {
 }
 
 /* ------------------------------------------------------------
-   12. Navigation
+   13. Navigation
    ------------------------------------------------------------ */
 
 function showSection(id) {
   const target = document.getElementById(id);
   if (!target) return;
-
   $$('.section').forEach(s => s.classList.toggle('active', s === target));
   $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.target === id));
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
   history.replaceState(null, '', `#${id}`);
   closeSidebar();
@@ -1048,7 +1015,6 @@ function openSidebar() {
   $('#sidebar').classList.add('open');
   $('#scrim').hidden = false;
   $('#menuToggle').setAttribute('aria-expanded', 'true');
-  // Change icon to 'X'
   $('#menuToggle').innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
 }
 
@@ -1056,12 +1022,11 @@ function closeSidebar() {
   $('#sidebar').classList.remove('open');
   $('#scrim').hidden = true;
   $('#menuToggle').setAttribute('aria-expanded', 'false');
-  // Change icon back to hamburger
   $('#menuToggle').innerHTML = '<i class="fa-solid fa-bars"></i>'; 
 }
 
 /* ------------------------------------------------------------
-   13. Wiring
+   14. Wiring
    ------------------------------------------------------------ */
 
 function wireEvents() {
@@ -1095,11 +1060,9 @@ function wireEvents() {
   });
 
   $('#searchBtn').addEventListener('click', submitSearch);
-
   document.addEventListener('click', e => {
     if (!e.target.closest('.search')) hideSuggestions();
   });
-
   $('#quickCities').addEventListener('click', e => {
     const chip = e.target.closest('[data-city]');
     if (!chip) return;
@@ -1108,12 +1071,13 @@ function wireEvents() {
 }
 
 /* ------------------------------------------------------------
-   14. Init
+   15. Init
    ------------------------------------------------------------ */
 
 function init() {
   renderQuickCities();
   renderTeam();
+  initMap(); // <-- Panggil inisialisasi peta
   wireEvents();
 
   const hash = location.hash.replace('#', '');
