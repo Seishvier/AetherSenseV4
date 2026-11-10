@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
-  <!-- Tambahan Leaflet CSS untuk Peta -->
+  <!-- Leaflet CSS untuk Peta -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <link rel="stylesheet" href="styles.css" />
@@ -55,9 +55,6 @@
       </a>
       <a class="nav-item" href="#weather" data-target="weather">
         <i class="fa-solid fa-cloud-sun"></i><span>Weather</span>
-      </a>
-      <a class="nav-item" href="#map" data-target="map">
-        <i class="fa-solid fa-map-location-dot"></i><span>Interactive Map</span>
       </a>
       <a class="nav-item" href="#air" data-target="air">
         <i class="fa-solid fa-lungs"></i><span>Air Quality</span>
@@ -144,6 +141,11 @@
           </article>
         </div>
 
+        <!-- Peta Interaktif Dashboard -->
+        <article class="card map-card">
+          <div id="weatherMap"></div>
+        </article>
+
         <div class="stat-grid">
           <article class="card stat">
             <i class="fa-solid fa-droplet stat-icon"></i>
@@ -219,21 +221,6 @@
             <p class="stat-value" id="statVisibility">—</p>
           </article>
         </div>
-      </section>
-
-      <!-- ---------- INTERACTIVE MAP ---------- -->
-      <section class="section" id="map">
-        <header class="page-head">
-          <div>
-            <p class="eyebrow">Visualization</p>
-            <h1 class="page-title">Interactive Weather Map</h1>
-            <p class="page-sub">Live rain radar and local weather conditions.</p>
-          </div>
-        </header>
-        
-        <article class="card" style="padding: 0; overflow: hidden; height: 600px;">
-          <div id="weatherMap" style="width: 100%; height: 100%; z-index: 1;"></div>
-        </article>
       </section>
 
       <!-- ---------- AIR QUALITY ---------- -->
@@ -398,7 +385,7 @@
               <li>Open-Meteo Geocoding API — city lookup</li>
               <li>Open-Meteo Forecast API — current, hourly, daily, UV</li>
               <li>Open-Meteo Air Quality API — European AQI, PM2.5, PM10, gases</li>
-              <li>RainViewer API — Real-time radar map overlay</li>
+              <li>OpenStreetMap & RainViewer API — Map & Radar overlay</li>
             </ul>
           </article>
         </div>
@@ -418,7 +405,7 @@
     </div>
   </main>
 
-  <!-- Tambahan Leaflet JS untuk Peta -->
+  <!-- Leaflet JS untuk Peta -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
