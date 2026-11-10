@@ -580,10 +580,11 @@ function initMap() {
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   // Tile Layer Gelap
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-    maxZoom: 16
-  }).addTo(map);
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  className: 'dark-tiles'
+}).addTo(map);
 
   // Radar Hujan Real-time
   radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/nowcast_0/{z}/{x}/{y}/4/1_1.png', {
