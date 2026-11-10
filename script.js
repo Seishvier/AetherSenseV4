@@ -573,28 +573,24 @@ function generateRecommendations(ctx, agri) {
    ------------------------------------------------------------ */
 let map;
 let marker;
-let radarLayer;
 
 function initMap() {
-  map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 8);
+  map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 11);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  // Tile Layer Gelap
- L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  maxZoom: 19,
-  className: 'dark-tiles'
-}).addTo(map);
-
-  // Radar Hujan Real-time
-  radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/nowcast_0/{z}/{x}/{y}/4/1_1.png', {
-    opacity: 0.6, attribution: 'Radar &copy; RainViewer'
+  // Tile Layer Gelap CartoDB
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20,
+    maxNativeZoom: 19
   }).addTo(map);
 }
 
 function updateMap(loc, ctx) {
   if (!map) return;
-  map.flyTo([loc.latitude, loc.longitude], 10, { duration: 1.5 });
+  // Zoom 11 agar tampilan kota di dalam card pas
+  map.flyTo([loc.latitude, loc.longitude], 11, { duration: 1.5 });
   
   if (marker) map.removeLayer(marker);
   
@@ -865,7 +861,7 @@ function renderAll() {
   renderRecommendations(ctx, agri);
   renderAgriculture(agri);
   
-  // Panggil fungsi update peta
+  // Memperbarui peta
   updateMap(state.location, ctx);
 }
 
@@ -1078,7 +1074,7 @@ function wireEvents() {
 function init() {
   renderQuickCities();
   renderTeam();
-  initMap(); // <-- Panggil inisialisasi peta
+  initMap();
   wireEvents();
 
   const hash = location.hash.replace('#', '');
