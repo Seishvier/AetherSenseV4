@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AetherSense — Real-Time Weather &amp; Air Quality Intelligence</title>
+  <title>AetherSense — Real-Time Weather & Air Quality Intelligence</title>
   <meta name="description" content="AetherSense turns free Open-Meteo weather and air-quality data into personalised health, global agriculture and outdoor-activity guidance — fully client-side." />
   <meta name="theme-color" content="#0a0e1a" />
 
@@ -11,6 +11,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Tambahan Leaflet CSS untuk Peta -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body data-theme="default">
@@ -32,7 +36,6 @@
       <div class="brand-mark"><i class="fa-solid fa-wind"></i></div>
       <div class="brand-text">
         <span class="brand-name">AetherSense</span>
-        <span class="brand-tag">Seishvier</span>
       </div>
     </div>
 
@@ -52,6 +55,9 @@
       </a>
       <a class="nav-item" href="#weather" data-target="weather">
         <i class="fa-solid fa-cloud-sun"></i><span>Weather</span>
+      </a>
+      <a class="nav-item" href="#map" data-target="map">
+        <i class="fa-solid fa-map-location-dot"></i><span>Interactive Map</span>
       </a>
       <a class="nav-item" href="#air" data-target="air">
         <i class="fa-solid fa-lungs"></i><span>Air Quality</span>
@@ -215,6 +221,21 @@
         </div>
       </section>
 
+      <!-- ---------- INTERACTIVE MAP ---------- -->
+      <section class="section" id="map">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Visualization</p>
+            <h1 class="page-title">Interactive Weather Map</h1>
+            <p class="page-sub">Live rain radar and local weather conditions.</p>
+          </div>
+        </header>
+        
+        <article class="card" style="padding: 0; overflow: hidden; height: 600px;">
+          <div id="weatherMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+        </article>
+      </section>
+
       <!-- ---------- AIR QUALITY ---------- -->
       <section class="section" id="air">
         <header class="page-head">
@@ -366,7 +387,7 @@
             <ul class="tick-list">
               <li>HTML5, CSS3 (custom properties, backdrop-filter), ES6+ JavaScript</li>
               <li>Inter + Playfair Display — Google Fonts</li>
-              <li>Font Awesome 6 icons</li>
+              <li>Font Awesome 6 icons & Leaflet.js for Maps</li>
               <li>Zero build step, zero runtime dependencies</li>
             </ul>
           </article>
@@ -377,7 +398,7 @@
               <li>Open-Meteo Geocoding API — city lookup</li>
               <li>Open-Meteo Forecast API — current, hourly, daily, UV</li>
               <li>Open-Meteo Air Quality API — European AQI, PM2.5, PM10, gases</li>
-              <li>All endpoints free and keyless</li>
+              <li>RainViewer API — Real-time radar map overlay</li>
             </ul>
           </article>
         </div>
@@ -397,6 +418,8 @@
     </div>
   </main>
 
+  <!-- Tambahan Leaflet JS untuk Peta -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
