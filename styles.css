@@ -183,7 +183,6 @@ ul { list-style: none; }
   flex-shrink: 0;
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-/* Font size diperbesar karena sub-judul dihapus */
 .brand-name { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: .2px; }
 
 /* Search */
@@ -515,6 +514,20 @@ ul { list-style: none; }
 }
 .scrim { position: fixed; inset: 0; z-index: 55; background: rgba(4, 7, 14, .6); backdrop-filter: blur(2px); }
 
+/* Peta pada Dashboard */
+.map-card {
+  padding: 0 !important; 
+  height: 350px; 
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 1;
+}
+.map-card #weatherMap {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius);
+}
+
 /* Leaflet Map overrides */
 .leaflet-container { background: var(--bg-1); font-family: var(--font-sans); }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
@@ -570,21 +583,11 @@ ul { list-style: none; }
   
   /* Sesuaikan tombol X di HP kecil */
   .menu-toggle[aria-expanded="true"] { left: auto; right: 16px; }
+  
+  /* Ukuran peta di HP */
+  .map-card { height: 280px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
-}
-
-/* === TRIK PETA GELAP TANPA API KEY === */
-.dark-tiles {
-  /* Membalik warna, mengurangi saturasi, dan menyesuaikan rona agar gelap kebiruan */
-  filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.2) saturate(0.5);
-  transition: filter 0.3s ease;
-}
-
-/* Pastikan pop-up dan kontrol peta tetap terlihat normal */
-.leaflet-popup-content-wrapper,
-.leaflet-control-zoom {
-  filter: invert(0) hue-rotate(0deg) brightness(1) contrast(1) saturate(1);
 }
