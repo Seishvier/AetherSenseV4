@@ -579,11 +579,20 @@ function initMap() {
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   // PASTIKAN API KEY CARTO SUDAH DIISI DI BAWAH INI
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=cb1_55w5_1_0184337ef19a858aab29604e', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: 20,
-    maxNativeZoom: 19
+  function initMap() {
+  map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 11);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  // 1. Layer Dasar (Daratan Gelap Esri)
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    maxNativeZoom: 16
+  }).addTo(map);
+
+  // 2. Layer Teks Jalan & Nama Kota (Putih Bersih)
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    maxNativeZoom: 16
   }).addTo(map);
 }
 
