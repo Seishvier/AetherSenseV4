@@ -146,30 +146,8 @@
           <div id="weatherMap"></div>
         </article>
 
-        <div class="stat-grid">
-          <article class="card stat">
-            <i class="fa-solid fa-droplet stat-icon"></i>
-            <p class="stat-label">Humidity</p>
-            <p class="stat-value" id="statHumidity">—</p>
-          </article>
-          <article class="card stat">
-            <i class="fa-solid fa-wind stat-icon"></i>
-            <p class="stat-label">Wind</p>
-            <p class="stat-value" id="statWind">—</p>
-            <p class="stat-sub" id="statWindDir">—</p>
-          </article>
-          <article class="card stat">
-            <i class="fa-solid fa-gauge stat-icon"></i>
-            <p class="stat-label">Pressure</p>
-            <p class="stat-value" id="statPressure">—</p>
-          </article>
-          <article class="card stat">
-            <i class="fa-solid fa-sun stat-icon"></i>
-            <p class="stat-label">UV index</p>
-            <p class="stat-value" id="statUv">—</p>
-            <p class="stat-sub" id="statUvLabel">—</p>
-          </article>
-        </div>
+        <!-- Stat-grid akan dirender ulang oleh JavaScript dengan gaya Glassy V30 -->
+        <div class="stat-grid" id="dynamicStatGrid"></div>
 
         <article class="card">
           <div class="card-head">
@@ -202,23 +180,31 @@
         <div class="stat-grid">
           <article class="card stat">
             <i class="fa-solid fa-cloud stat-icon"></i>
-            <p class="stat-label">Cloud cover</p>
-            <p class="stat-value" id="statCloud">—</p>
+            <div>
+              <p class="stat-label">Cloud cover</p>
+              <p class="stat-value" id="statCloud">—</p>
+            </div>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-wind stat-icon"></i>
-            <p class="stat-label">Wind gusts</p>
-            <p class="stat-value" id="statGusts">—</p>
+            <div>
+              <p class="stat-label">Wind gusts</p>
+              <p class="stat-value" id="statGusts">—</p>
+            </div>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-cloud-rain stat-icon"></i>
-            <p class="stat-label">Precipitation</p>
-            <p class="stat-value" id="statPrecip">—</p>
+            <div>
+              <p class="stat-label">Precipitation</p>
+              <p class="stat-value" id="statPrecip">—</p>
+            </div>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-eye stat-icon"></i>
-            <p class="stat-label">Visibility</p>
-            <p class="stat-value" id="statVisibility">—</p>
+            <div>
+              <p class="stat-label">Visibility</p>
+              <p class="stat-value" id="statVisibility">—</p>
+            </div>
           </article>
         </div>
       </section>
@@ -385,7 +371,7 @@
               <li>Open-Meteo Geocoding API — city lookup</li>
               <li>Open-Meteo Forecast API — current, hourly, daily, UV</li>
               <li>Open-Meteo Air Quality API — European AQI, PM2.5, PM10, gases</li>
-              <li>OpenStreetMap & RainViewer API — Map & Radar overlay</li>
+              <li>CARTO Basemaps & RainViewer API — Map & Radar overlay</li>
             </ul>
           </article>
         </div>
@@ -409,4 +395,4 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+  </html>
