@@ -461,4 +461,10 @@ function generateRecommendations(ctx, agri) {
 
   if (feels >= 35) {
     push('health', 'danger', 'fa-temperature-high', 'Heat stress risk',
-      `Feels like ${fm
+      `Feels like ${fmt(feels)}°C. Drink water frequently, avoid the midday sun, and watch for dizziness or cramps.`);
+  } else if (feels >= 32) {
+    push('health', 'warn', 'fa-temperature-high', 'Hot conditions',
+      `Feels like ${fmt(feels)}°C — stay hydrated and take shade breaks.`);
+  } else if (feels <= 8) {
+    push('health', 'warn', 'fa-temperature-low', 'Cold stress',
+      `Feels
