@@ -579,7 +579,7 @@ function initMap() {
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   // PASTIKAN API KEY CARTO SUDAH DIISI DI BAWAH INI
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api=cb1_55w5_1_0184337ef19a858aab29604e', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=cb1_55w5_1_0184337ef19a858aab29604e', {
     attribution: '&copy; OpenStreetMap &copy; CARTO',
     subdomains: 'abcd',
     maxZoom: 20,
