@@ -579,7 +579,7 @@ function initMap() {
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   // Tile Layer Gelap CartoDB
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_55w5_1_0184337ef19a858aab29604e', {
     attribution: '&copy; OpenStreetMap &copy; CARTO',
     subdomains: 'abcd',
     maxZoom: 20,
