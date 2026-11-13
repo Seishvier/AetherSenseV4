@@ -578,26 +578,18 @@ function initMap() {
   map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 11);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  // PASTIKAN API KEY CARTO SUDAH DIISI DI BAWAH INI
-  function initMap() {
-  map = L.map('weatherMap', { zoomControl: false }).setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 11);
-  L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-  // 1. Layer Dasar (Daratan Gelap Esri)
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 19,
-    maxNativeZoom: 16
-  }).addTo(map);
-
-  // 2. Layer Teks Jalan & Nama Kota (Putih Bersih)
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 19,
-    maxNativeZoom: 16
+  // Tile Layer Gelap CartoDB
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20,
+    maxNativeZoom: 19
   }).addTo(map);
 }
 
 function updateMap(loc, ctx) {
   if (!map) return;
+  // Zoom 11 agar tampilan kota di dalam card pas
   map.flyTo([loc.latitude, loc.longitude], 11, { duration: 1.5 });
   
   if (marker) map.removeLayer(marker);
@@ -670,33 +662,16 @@ function uvLabel(uv) {
 }
 
 function renderStats(ctx) {
-  const stats = [
-    { id: 'statHumidity', icon: 'fa-droplet', glow: 'glow-blue', val: `${fmt(ctx.humidity)}%`, label: 'Kelembapan' },
-    { id: 'statWind', icon: 'fa-wind', glow: 'glow-green', val: `${fmt(ctx.wind)} km/h`, label: 'Angin', sub: `Dari ${compass(ctx.windDir)}` },
-    { id: 'statPressure', icon: 'fa-gauge', glow: 'glow-purple', val: `${fmt(ctx.pressure)} hPa`, label: 'Tekanan' },
-    { id: 'statUv', icon: 'fa-sun', glow: 'glow-orange', val: fmt(ctx.uv, 1), label: 'UV Index', sub: uvLabel(ctx.uv) }
-  ];
-
-  const statGrid = $('#dynamicStatGrid');
-  if (statGrid) {
-    statGrid.innerHTML = stats.map(s => `
-      <article class="card stat">
-        <div class="icon-glow ${s.glow}"><i class="fa-solid ${s.icon}"></i></div>
-        <div>
-          <p class="stat-label">${s.label}</p>
-          <p class="stat-value">${s.val}</p>
-          ${s.sub ? `<p class="stat-sub">${s.sub}</p>` : ''}
-        </div>
-      </article>
-    `).join('');
-  }
-
-  if ($('#statCloud')) {
-    $('#statCloud').textContent = `${fmt(ctx.cloud)}%`;
-    $('#statGusts').textContent = `${fmt(ctx.gusts)} km/h`;
-    $('#statPrecip').textContent = `${fmt(ctx.precip, 1)} mm`;
-    $('#statVisibility').textContent = `${fmt(ctx.visibility, 1)} km`;
-  }
+  $('#statHumidity').textContent = `${fmt(ctx.humidity)}%`;
+  $('#statWind').textContent = `${fmt(ctx.wind)} km/h`;
+  $('#statWindDir').textContent = `From ${compass(ctx.windDir)} (${fmt(ctx.windDir)}°)`;
+  $('#statPressure').textContent = `${fmt(ctx.pressure)} hPa`;
+  $('#statUv').textContent = fmt(ctx.uv, 1);
+  $('#statUvLabel').textContent = uvLabel(ctx.uv);
+  $('#statCloud').textContent = `${fmt(ctx.cloud)}%`;
+  $('#statGusts').textContent = `${fmt(ctx.gusts)} km/h`;
+  $('#statPrecip').textContent = `${fmt(ctx.precip, 1)} mm`;
+  $('#statVisibility').textContent = `${fmt(ctx.visibility, 1)} km`;
 }
 
 function renderAqi(ctx) {
@@ -831,16 +806,9 @@ function renderAgriculture(agri) {
   agri.forEach(ind => {
     const card = document.createElement('article');
     card.className = 'card agri-card';
-    
-    let glowClass = 'glow-blue';
-    if (ind.color.includes('danger')) glowClass = 'glow-red';
-    else if (ind.color.includes('warn')) glowClass = 'glow-orange';
-    else if (ind.color.includes('good')) glowClass = 'glow-green';
-    else if (ind.color.includes('info')) glowClass = 'glow-purple';
-
     card.innerHTML = `
       <div class="agri-top">
-        <div class="icon-glow ${glowClass}"><i class="fa-solid ${ind.icon}"></i></div>
+        <div class="agri-icon"><i class="fa-solid ${ind.icon}"></i></div>
         <div>
           <p class="agri-name">${ind.name}</p>
           <p class="agri-note">${ind.note}</p>
@@ -893,6 +861,7 @@ function renderAll() {
   renderRecommendations(ctx, agri);
   renderAgriculture(agri);
   
+  // Memperbarui peta
   updateMap(state.location, ctx);
 }
 
