@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AetherSense — Real-Time Weather & Air Quality Intelligence</title>
   <meta name="description" content="AetherSense turns free Open-Meteo weather and air-quality data into personalised health, global agriculture and outdoor-activity guidance — fully client-side." />
   <meta name="theme-color" content="#0a0e1a" />
@@ -146,7 +146,30 @@
           <div id="weatherMap"></div>
         </article>
 
-        <div class="stat-grid" id="dynamicStatGrid"></div>
+        <div class="stat-grid">
+          <article class="card stat">
+            <i class="fa-solid fa-droplet stat-icon"></i>
+            <p class="stat-label">Humidity</p>
+            <p class="stat-value" id="statHumidity">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-wind stat-icon"></i>
+            <p class="stat-label">Wind</p>
+            <p class="stat-value" id="statWind">—</p>
+            <p class="stat-sub" id="statWindDir">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-gauge stat-icon"></i>
+            <p class="stat-label">Pressure</p>
+            <p class="stat-value" id="statPressure">—</p>
+          </article>
+          <article class="card stat">
+            <i class="fa-solid fa-sun stat-icon"></i>
+            <p class="stat-label">UV index</p>
+            <p class="stat-value" id="statUv">—</p>
+            <p class="stat-sub" id="statUvLabel">—</p>
+          </article>
+        </div>
 
         <article class="card">
           <div class="card-head">
@@ -179,31 +202,23 @@
         <div class="stat-grid">
           <article class="card stat">
             <i class="fa-solid fa-cloud stat-icon"></i>
-            <div>
-              <p class="stat-label">Cloud cover</p>
-              <p class="stat-value" id="statCloud">—</p>
-            </div>
+            <p class="stat-label">Cloud cover</p>
+            <p class="stat-value" id="statCloud">—</p>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-wind stat-icon"></i>
-            <div>
-              <p class="stat-label">Wind gusts</p>
-              <p class="stat-value" id="statGusts">—</p>
-            </div>
+            <p class="stat-label">Wind gusts</p>
+            <p class="stat-value" id="statGusts">—</p>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-cloud-rain stat-icon"></i>
-            <div>
-              <p class="stat-label">Precipitation</p>
-              <p class="stat-value" id="statPrecip">—</p>
-            </div>
+            <p class="stat-label">Precipitation</p>
+            <p class="stat-value" id="statPrecip">—</p>
           </article>
           <article class="card stat">
             <i class="fa-solid fa-eye stat-icon"></i>
-            <div>
-              <p class="stat-label">Visibility</p>
-              <p class="stat-value" id="statVisibility">—</p>
-            </div>
+            <p class="stat-label">Visibility</p>
+            <p class="stat-value" id="statVisibility">—</p>
           </article>
         </div>
       </section>
@@ -370,7 +385,7 @@
               <li>Open-Meteo Geocoding API — city lookup</li>
               <li>Open-Meteo Forecast API — current, hourly, daily, UV</li>
               <li>Open-Meteo Air Quality API — European AQI, PM2.5, PM10, gases</li>
-              <li>Esri Basemaps & RainViewer API — Map & Radar overlay</li>
+              <li>OpenStreetMap & RainViewer API — Map & Radar overlay</li>
             </ul>
           </article>
         </div>
