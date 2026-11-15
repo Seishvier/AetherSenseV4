@@ -1078,7 +1078,29 @@ function closeSidebar() {
    14. Wiring
    ------------------------------------------------------------ */
 
+/* Smoother scrolling: while the user is actively scrolling, drop the
+   expensive backdrop-filter blur on every .card and pause the
+   animated background orbs (see styles.css `.is-scrolling` rules).
+   Both get restored ~150ms after the scroll stops. This is the main
+   fix for the "patah-patah" feeling when scrolling past many glass
+   cards at once. */
+function wireScrollPerf() {
+  let scrollTimer = null;
+
+  const onScroll = () => {
+    document.body.classList.add('is-scrolling');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      document.body.classList.remove('is-scrolling');
+    }, 150);
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
 function wireEvents() {
+  wireScrollPerf();
+
   $$('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
       e.preventDefault();
