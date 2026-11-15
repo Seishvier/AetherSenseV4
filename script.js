@@ -199,18 +199,21 @@ function buildContext() {
     dailyMin: w.daily.temperature_2m_min?.[0] ?? c.temperature_2m,
     dailyMax: w.daily.temperature_2m_max?.[0] ?? c.temperature_2m,
     dailyRainProb: w.daily.precipitation_probability_max?.[0] ?? 0,
-    aqi: a?.current?.european_aqi ?? 0,
-    pm25: a?.current?.pm2_5 ?? 0,
-    pm10: a?.current?.pm10 ?? 0,
-    no2: a?.current?.nitrogen_dioxide ?? 0,
-    o3: a?.current?.ozone ?? 0,
-    so2: a?.current?.sulphur_dioxide ?? 0,
-    co: a?.current?.carbon_monoxide ?? 0,
+    aqi: a?.current?.european_aqi ?? null,
+    pm25: a?.current?.pm2_5 ?? null,
+    pm10: a?.current?.pm10 ?? null,
+    no2: a?.current?.nitrogen_dioxide ?? null,
+    o3: a?.current?.ozone ?? null,
+    so2: a?.current?.sulphur_dioxide ?? null,
+    co: a?.current?.carbon_monoxide ?? null,
     theme: themeForCode(c.weather_code)
   };
 }
 
 function aqiBand(aqi) {
+  if (aqi == null || !Number.isFinite(Number(aqi))) {
+    return { max: null, label: 'No data', color: 'var(--text-faint)' };
+  }
   return AQI_BANDS.find(b => aqi <= b.max) || AQI_BANDS[AQI_BANDS.length - 1];
 }
 
@@ -430,7 +433,14 @@ function generateRecommendations(ctx, agri) {
   const isMorning = hourLocal >= 5 && hourLocal < 9;
 
   /* ================= HEALTH ================= */
-  if (aqi <= 20) {
+  const hasAqi = Number.isFinite(Number(aqi));
+  const hasPm25 = Number.isFinite(Number(pm25));
+  const hasPm10 = Number.isFinite(Number(pm10));
+
+  if (!hasAqi) {
+    push('health', 'info', 'fa-circle-info', 'Air quality data unavailable',
+      'We could not retrieve air-quality readings for this location right now.');
+  } else if (aqi <= 20) {
     push('health', 'good', 'fa-lungs', 'Excellent air quality',
       'Air is clean — outdoor breathing is safe for everyone, including sensitive groups.');
   } else if (aqi <= 40) {
@@ -447,14 +457,14 @@ function generateRecommendations(ctx, agri) {
       'Stay indoors where possible. Use a purifier or an N95 mask if you must go outside.');
   }
 
-  if (pm25 > 35) {
+  if (hasPm25 && pm25 > 35) {
     push('health', 'danger', 'fa-smog', 'PM2.5 above safe levels',
       `Fine particulate matter is ${fmt(pm25, 1)} µg/m³ — well above the WHO 24-hour guideline of 15 µg/m³. Avoid outdoor exercise, especially morning runs.`);
-  } else if (pm25 > 15) {
+  } else if (hasPm25 && pm25 > 15) {
     push('health', 'warn', 'fa-smog', 'PM2.5 exceeds WHO guideline',
       `At ${fmt(pm25, 1)} µg/m³, PM2.5 is above the WHO 24-hour guideline (15 µg/m³). Sensitive people should take it easy.`);
   }
-  if (pm10 > 45) {
+  if (hasPm10 && pm10 > 45) {
     push('health', 'warn', 'fa-smog', 'Coarse dust elevated',
       `PM10 at ${fmt(pm10, 1)} µg/m³ — dust suppression and indoor filtration help reduce exposure.`);
   }
@@ -518,17 +528,17 @@ function generateRecommendations(ctx, agri) {
     push('outdoor', 'warn', 'fa-person-running', 'Shift exercise to cooler hours',
       'Exercise before 9 AM or after 5 PM to avoid peak heat and UV.');
   }
-  if (aqi >= 60 && (isMorning || temp >= 28)) {
+  if (hasAqi && aqi >= 60 && (isMorning || temp >= 28)) {
     push('outdoor', 'warn', 'fa-mask-face', isMorning
       ? 'Limit morning outdoor exercise'
       : 'Limit outdoor exertion',
       `Air quality index is ${fmt(aqi)} — running or cycling now increases pollutant intake. Choose indoor or lighter activity.`);
   }
-  if (!storm && aqi <= 40 && temp >= 16 && temp <= 28 && wind < 20 && precipProb < 30 && uv < 8) {
+  if (!storm && hasAqi && aqi <= 40 && temp >= 16 && temp <= 28 && wind < 20 && precipProb < 30 && uv < 8) {
     push('outdoor', 'good', 'fa-person-hiking', 'Excellent outdoor window',
       `Comfortable ${fmt(temp)}°C with clean air — ideal for running, cycling, or a picnic.`);
   }
-  if (!ctx.isDay && temp >= 18 && temp <= 27 && aqi <= 40 && precipProb < 30) {
+  if (!ctx.isDay && temp >= 18 && temp <= 27 && hasAqi && aqi <= 40 && precipProb < 30) {
     push('outdoor', 'good', 'fa-moon', 'Pleasant evening',
       `Mild ${fmt(temp)}°C with fair air — a good time for an evening walk.`);
   }
@@ -674,9 +684,14 @@ function renderStats(ctx) {
   $('#statVisibility').textContent = `${fmt(ctx.visibility, 1)} km`;
 }
 
+function barWidth(value, max) {
+  return Number.isFinite(Number(value)) ? clamp((Number(value) / max) * 100, 2, 100) : 0;
+}
+
 function renderAqi(ctx) {
+  const hasAqi = Number.isFinite(Number(ctx.aqi));
   const band = aqiBand(ctx.aqi);
-  const p = clamp((ctx.aqi / 120) * 100, 0, 100);
+  const p = hasAqi ? clamp((ctx.aqi / 120) * 100, 0, 100) : 0;
   [['#aqiGauge', '#aqiValue', '#aqiBand'],
    ['#aqiGauge2', '#aqiValue2', '#aqiBand2']].forEach(([g, v, b]) => {
     const gauge = $(g);
@@ -690,7 +705,9 @@ function renderAqi(ctx) {
   });
   const note = $('#aqiNote2');
   if (note) {
-    note.textContent = ctx.aqi <= 40 ? 'Safe for general outdoor activity.'
+    note.textContent = !hasAqi
+      ? 'Air quality data is currently unavailable for this location.'
+      : ctx.aqi <= 40 ? 'Safe for general outdoor activity.'
       : ctx.aqi <= 60 ? 'Sensitive groups should take care.' : 'Reduce prolonged outdoor exertion.';
   }
   $('#pm25').textContent = fmt(ctx.pm25, 1);
@@ -699,19 +716,21 @@ function renderAqi(ctx) {
   $('#o3').textContent = fmt(ctx.o3, 1);
   $('#so2').textContent = fmt(ctx.so2, 1);
   $('#co').textContent = fmt(ctx.co, 0);
-  $('#pm25Bar').style.width = `${clamp((ctx.pm25 / 75) * 100, 2, 100)}%`;
-  $('#pm10Bar').style.width = `${clamp((ctx.pm10 / 150) * 100, 2, 100)}%`;
+  $('#pm25Bar').style.width = `${barWidth(ctx.pm25, 75)}%`;
+  $('#pm10Bar').style.width = `${barWidth(ctx.pm10, 150)}%`;
 
   const advice = $('#aqiAdvice');
   advice.innerHTML = '';
   const items = [];
-  if (ctx.aqi <= 20) items.push(['good', 'fa-lungs', 'Ideal conditions', 'Air quality is excellent — no precautions needed.']);
+  if (!hasAqi) {
+    items.push(['info', 'fa-circle-info', 'Air quality data unavailable', 'We could not retrieve air-quality readings for this location right now. Try again shortly or pick another city.']);
+  } else if (ctx.aqi <= 20) items.push(['good', 'fa-lungs', 'Ideal conditions', 'Air quality is excellent — no precautions needed.']);
   else if (ctx.aqi <= 40) items.push(['good', 'fa-lungs', 'Generally safe', 'Fine for most activities; extremely sensitive people may notice minor effects.']);
   else if (ctx.aqi <= 60) items.push(['warn', 'fa-mask-face', 'Sensitive groups affected', 'Children, the elderly, and people with asthma should shorten outdoor exposure.']);
   else if (ctx.aqi <= 80) items.push(['warn', 'fa-mask-face', 'Unhealthy for sensitive groups', 'Limit outdoor exertion; keep windows closed during peak traffic hours.']);
   else items.push(['danger', 'fa-triangle-exclamation', 'Health alert', 'Avoid outdoor exertion. Use filtration indoors and wear an N95 outdoors if necessary.']);
-  if (ctx.pm25 > 15) items.push(['warn', 'fa-smog', 'PM2.5 above WHO guideline', `Current PM2.5 is ${fmt(ctx.pm25, 1)} µg/m³ versus the WHO 24-hour guideline of 15 µg/m³.`]);
-  if (ctx.pm10 > 45) items.push(['warn', 'fa-smog', 'Coarse dust elevated', `PM10 at ${fmt(ctx.pm10, 1)} µg/m³ — dust suppression and indoor filtration help.`]);
+  if (Number.isFinite(Number(ctx.pm25)) && ctx.pm25 > 15) items.push(['warn', 'fa-smog', 'PM2.5 above WHO guideline', `Current PM2.5 is ${fmt(ctx.pm25, 1)} µg/m³ versus the WHO 24-hour guideline of 15 µg/m³.`]);
+  if (Number.isFinite(Number(ctx.pm10)) && ctx.pm10 > 45) items.push(['warn', 'fa-smog', 'Coarse dust elevated', `PM10 at ${fmt(ctx.pm10, 1)} µg/m³ — dust suppression and indoor filtration help.`]);
   items.forEach(([sev, icon, title, text]) => {
     advice.insertAdjacentHTML('beforeend', `
       <div class="rec rec--${sev}">
@@ -918,6 +937,39 @@ async function loadLocation(loc) {
 }
 
 /* ------------------------------------------------------------
+   11b. Geolocation
+   ------------------------------------------------------------ */
+
+function detectAndLoadLocation() {
+  const locMeta = $('#locationMeta');
+
+  if (!('geolocation' in navigator)) {
+    loadLocation(DEFAULT_LOCATION);
+    return;
+  }
+
+  if (locMeta) locMeta.textContent = 'Locating…';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      loadLocation({
+        name: 'My Location',
+        admin1: '',
+        country: '',
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude
+      });
+    },
+    err => {
+      console.warn('Geolocation unavailable, using default location:', err.message);
+      if (locMeta) locMeta.textContent = 'Location';
+      loadLocation(DEFAULT_LOCATION);
+    },
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 10 * 60 * 1000 }
+  );
+}
+
+/* ------------------------------------------------------------
    12. Search
    ------------------------------------------------------------ */
 
@@ -1074,14 +1126,20 @@ function wireEvents() {
 function init() {
   renderQuickCities();
   renderTeam();
-  initMap();
+
+  try {
+    initMap();
+  } catch (err) {
+    console.error('Map failed to initialise:', err);
+  }
+
   wireEvents();
 
   const hash = location.hash.replace('#', '');
   if (hash && document.getElementById(hash)) showSection(hash);
 
   setInterval(updateClock, 30_000);
-  loadLocation(DEFAULT_LOCATION);
+  detectAndLoadLocation();
 }
 
 document.addEventListener('DOMContentLoaded', init);
