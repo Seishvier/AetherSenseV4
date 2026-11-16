@@ -1078,7 +1078,28 @@ function closeSidebar() {
    14. Wiring
    ------------------------------------------------------------ */
 
+/* Smoother scrolling with glass cards back in play: while the user is
+   actively scrolling, drop the expensive backdrop-filter blur (and
+   pause the ambient background glows) and fall back to flat tinted
+   panels instead. Both get restored ~150ms after scrolling stops —
+   see the `.is-scrolling` rules in styles.css. */
+function wireScrollPerf() {
+  let scrollTimer = null;
+
+  const onScroll = () => {
+    document.body.classList.add('is-scrolling');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      document.body.classList.remove('is-scrolling');
+    }, 150);
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
 function wireEvents() {
+  wireScrollPerf();
+
   $$('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
       e.preventDefault();
