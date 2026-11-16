@@ -64,12 +64,12 @@ const WMO = {
 };
 
 const AQI_BANDS = [
-  { max: 20,       label: 'Good',             color: '#4ade80' },
-  { max: 40,       label: 'Fair',             color: '#a3e635' },
-  { max: 60,       label: 'Moderate',         color: '#fbbf24' },
-  { max: 80,       label: 'Poor',             color: '#fb923c' },
-  { max: 100,      label: 'Very poor',        color: '#f87171' },
-  { max: Infinity, label: 'Extremely poor',   color: '#b91c1c' }
+  { max: 20,       label: 'Good',             color: '#6fa287' },
+  { max: 40,       label: 'Fair',             color: '#a3a567' },
+  { max: 60,       label: 'Moderate',         color: '#d9a441' },
+  { max: 80,       label: 'Poor',             color: '#cf7a3c' },
+  { max: 100,      label: 'Very poor',        color: '#c85c4b' },
+  { max: Infinity, label: 'Extremely poor',   color: '#8c3b2e' }
 ];
 
 const COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
@@ -606,9 +606,9 @@ function updateMap(loc, ctx) {
   
   const popupHtml = `
     <h4>${loc.name}</h4>
-    <p style="margin-bottom:2px;"><i class="fa-solid fa-temperature-half" style="color:#ffd166;"></i> Suhu: <b>${fmt(ctx.temp)}°C</b></p>
-    <p style="margin-bottom:2px;"><i class="fa-solid fa-lungs" style="color:#4ade80;"></i> AQI: <b>${fmt(ctx.aqi)}</b></p>
-    <p><i class="fa-solid fa-cloud-rain" style="color:#60a5fa;"></i> Peluang Hujan: <b>${fmt(ctx.precipProb)}%</b></p>
+    <p style="margin-bottom:2px;"><i class="fa-solid fa-temperature-half" style="color:#d9a441;"></i> Suhu: <b>${fmt(ctx.temp)}°C</b></p>
+    <p style="margin-bottom:2px;"><i class="fa-solid fa-lungs" style="color:#6fa287;"></i> AQI: <b>${fmt(ctx.aqi)}</b></p>
+    <p><i class="fa-solid fa-cloud-rain" style="color:#4c8fa6;"></i> Peluang Hujan: <b>${fmt(ctx.precipProb)}%</b></p>
   `;
 
   marker = L.marker([loc.latitude, loc.longitude])
@@ -630,7 +630,7 @@ function renderHeader() {
   if (!loc) return;
   $('#locationName').textContent = loc.name || 'Unknown';
   const parts = [loc.admin1, loc.country].filter(p => p && p !== loc.name);
-  $('#locationMeta').textContent = parts.length ? parts.join(' · ') : 'Location';
+  $('#locationMeta').textContent = parts.length ? parts.join(', ') : 'Location';
   updateClock();
   $('#dataStatus').textContent = state.lastUpdated ? `Updated ${state.lastUpdated}` : 'Live data';
 }
@@ -1078,29 +1078,7 @@ function closeSidebar() {
    14. Wiring
    ------------------------------------------------------------ */
 
-/* Smoother scrolling: while the user is actively scrolling, drop the
-   expensive backdrop-filter blur on every .card and pause the
-   animated background orbs (see styles.css `.is-scrolling` rules).
-   Both get restored ~150ms after the scroll stops. This is the main
-   fix for the "patah-patah" feeling when scrolling past many glass
-   cards at once. */
-function wireScrollPerf() {
-  let scrollTimer = null;
-
-  const onScroll = () => {
-    document.body.classList.add('is-scrolling');
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      document.body.classList.remove('is-scrolling');
-    }, 150);
-  };
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-}
-
 function wireEvents() {
-  wireScrollPerf();
-
   $$('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
       e.preventDefault();
