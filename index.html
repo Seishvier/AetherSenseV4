@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AetherSense — Real-Time Weather & Air Quality Intelligence</title>
   <meta name="description" content="AetherSense turns free Open-Meteo weather and air-quality data into personalised health, global agriculture and outdoor-activity guidance — fully client-side." />
-  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="theme-color" content="#0b1320" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
   <!-- Leaflet CSS untuk Peta -->
@@ -20,9 +20,8 @@
 <body data-theme="default">
 
   <div class="bg-layer" aria-hidden="true">
-    <span class="orb orb-1"></span>
-    <span class="orb orb-2"></span>
-    <span class="orb orb-3"></span>
+    <div class="field-grid"></div>
+    <div class="horizon"></div>
   </div>
 
   <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">
@@ -184,7 +183,6 @@
       <section class="section" id="weather">
         <header class="page-head">
           <div>
-            <p class="eyebrow">Conditions</p>
             <h1 class="page-title">Weather Detail</h1>
           </div>
         </header>
@@ -227,7 +225,6 @@
       <section class="section" id="air">
         <header class="page-head">
           <div>
-            <p class="eyebrow">Atmosphere</p>
             <h1 class="page-title">Air Quality</h1>
           </div>
         </header>
@@ -291,7 +288,6 @@
       <section class="section" id="recommendations">
         <header class="page-head">
           <div>
-            <p class="eyebrow">Intelligence</p>
             <h1 class="page-title">Recommendations</h1>
             <p class="page-sub">Contextual, rule-based guidance generated from live weather and air-quality data.</p>
           </div>
@@ -323,7 +319,6 @@
       <section class="section" id="agriculture">
         <header class="page-head">
           <div>
-            <p class="eyebrow">Flagship feature</p>
             <h1 class="page-title">Agricultural Insights</h1>
             <p class="page-sub">Universal weather-driven indicators — valid in any climate, from temperate to tropical.</p>
           </div>
@@ -348,7 +343,6 @@
       <section class="section" id="about">
         <header class="page-head">
           <div>
-            <p class="eyebrow">The project</p>
             <h1 class="page-title">About AetherSense</h1>
           </div>
         </header>
@@ -373,7 +367,7 @@
             <h2 class="card-title"><i class="fa-solid fa-code"></i> Tech stack</h2>
             <ul class="tick-list">
               <li>HTML5, CSS3 (custom properties, backdrop-filter), ES6+ JavaScript</li>
-              <li>Inter + Playfair Display — Google Fonts</li>
+              <li>Space Grotesk, IBM Plex Sans & Mono — Google Fonts</li>
               <li>Font Awesome 6 icons & Leaflet.js for Maps</li>
               <li>Zero build step, zero runtime dependencies</li>
             </ul>
@@ -395,7 +389,6 @@
       <section class="section" id="team">
         <header class="page-head">
           <div>
-            <p class="eyebrow">Credits</p>
             <h1 class="page-title">Development Team</h1>
           </div>
         </header>
